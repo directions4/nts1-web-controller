@@ -1,6 +1,7 @@
 // var webpack = require("webpack");
 
 module.exports = {
+  publicPath: "/nts1-web-controller/",
   lintOnSave: false,
   pluginOptions: {
     quasar: {
