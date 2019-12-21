@@ -4,7 +4,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/nts1-web-controller/browserconfig.xml"
   },
   {
-    "revision": "d4c818fb1a1b24f266ca",
+    "revision": "9b46c403bae6ae1433c5",
     "url": "/nts1-web-controller/css/app.38051371.css"
   },
   {
@@ -20,12 +20,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/nts1-web-controller/fonts/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.0509ab09.woff2"
   },
   {
-    "revision": "2158b8298c8bb92c9964833fc9c3c154",
+    "revision": "871819d28078cde0f6a6d5139e4d0b98",
     "url": "/nts1-web-controller/index.html"
   },
   {
-    "revision": "d4c818fb1a1b24f266ca",
-    "url": "/nts1-web-controller/js/app.881ed01d.js"
+    "revision": "9b46c403bae6ae1433c5",
+    "url": "/nts1-web-controller/js/app.cd90ba45.js"
   },
   {
     "revision": "c608b394b3f4ea286624",

@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/nts1-web-controller/precache-manifest.6d4336839286a545204fbd4c4298b15b.js"
+  "/nts1-web-controller/precache-manifest.49f23f6fcacb1278c9bc7b5769d59a62.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "nts1-web-controller"});
