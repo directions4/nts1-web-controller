@@ -51,12 +51,6 @@ export default {
         }
       }
     }
-  },
-  methods: {
-    // handleKnob(e) {
-    //   console.log(e, this.params.value);
-    //   this.$emit("handleContolChange", this.param.cc, this.params.value);
-    // }
   }
 };
 </script>

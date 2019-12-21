@@ -113,9 +113,6 @@ export default {
       default: 0
     }
   },
-  data() {
-    return {};
-  },
   computed: {
     _holdSwitch: {
       get() {

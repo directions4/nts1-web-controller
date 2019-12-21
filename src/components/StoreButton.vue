@@ -32,9 +32,6 @@ export default {
       default: 1
     }
   },
-  data() {
-    return {};
-  },
   computed: {
     label: function() {
       return `Patch-${this.number + 1}`;
