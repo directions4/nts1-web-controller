@@ -45,10 +45,6 @@ yarn serve
 
 access [http://localhost:8080/](http://localhost:8080/) .
 
-![browser-sync](network.png)
-
-access [http://YOUR_HOST_IP:3000/](http://YOUR_HOST_IP:3000/).
-
 ## License
 
 NTS-1 Web Controller is licensed under a [MIT License](./LICENSE).
