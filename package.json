@@ -32,7 +32,7 @@
   "dependencies": {
     "@quasar/extras": "^1.0.0",
     "core-js": "^3.4.3",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "quasar": "^1.0.0",
     "register-service-worker": "^1.6.2",
     "vue": "^2.6.10",
