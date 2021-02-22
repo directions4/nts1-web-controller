@@ -383,7 +383,7 @@ export default {
       tab: "knobs", // Global tab
       outputs: [], // MIDI devices
       output: null, // Selected device
-      outputId: -220173338,
+      outputId: null,
       inputs: [],
       inputId: null,
       outputMidiChannel: "all", // Selected MIDI channel
@@ -441,9 +441,10 @@ export default {
     // init MIDI
     webmidi.enable(err => {
       if (err) {
-        console.log("MIDI could not be enabled.", err);
+        console.error("MIDI could not be enabled.", err);
       } else {
-        console.log("WebMIDI ebabled!");
+        console.info("WebMIDI ebabled!");
+        console.dir(webmidi.outputs);
         this.outputs = webmidi.outputs;
         this.inputs = webmidi.inputs;
       }
