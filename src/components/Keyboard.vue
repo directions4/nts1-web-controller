@@ -1,3 +1,82 @@
+<script setup>
+import { computed } from 'vue'
+
+const props = defineProps({
+  // Hold trigger switch
+  holdSwitch: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
+  // Arppegio trigger switch
+  arpSwitch: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
+  // Octave up and down
+  octave: {
+    type: Number,
+    required: true,
+    default: 0
+  }
+})
+
+const emit = defineEmits([
+  'update:holdSwitch',
+  'update:arpSwitch', 
+  'handleOctave',
+  'noteOn',
+  'noteOff'
+])
+
+const _holdSwitch = computed({
+  get() {
+    return props.holdSwitch
+  },
+  set(bool) {
+    if (props.holdSwitch !== bool) {
+      emit('update:holdSwitch', bool)
+    }
+  }
+})
+
+const _arpSwitch = computed({
+  get() {
+    return props.arpSwitch
+  },
+  set(bool) {
+    if (props.arpSwitch !== bool) {
+      emit('update:arpSwitch', bool)
+    }
+  }
+})
+
+const _octave = computed(() => props.octave)
+
+const handleOctaveUp = () => {
+  if (props.octave < 5) {
+    emit('handleOctave', props.octave + 1)
+  }
+}
+
+const handleOctaveDown = () => {
+  if (props.octave > -5) {
+    emit('handleOctave', props.octave - 1)
+  }
+}
+
+const handleNoteOn = (event) => {
+  const coefficient = props.octave * 12
+  const noteNum = Number(event.target.dataset.note) + coefficient
+  emit('noteOn', noteNum)
+}
+
+const handleNoteOff = () => {
+  emit('noteOff')
+}
+</script>
+
 <template>
   <div>
     <div class="row q-pa-md">
@@ -89,82 +168,3 @@
   position: relative;
 }
 </style>
-
-<script setup>
-import { computed } from 'vue'
-
-const props = defineProps({
-  // Hold trigger switch
-  holdSwitch: {
-    type: Boolean,
-    required: true,
-    default: false
-  },
-  // Arppegio trigger switch
-  arpSwitch: {
-    type: Boolean,
-    required: true,
-    default: false
-  },
-  // Octave up and down
-  octave: {
-    type: Number,
-    required: true,
-    default: 0
-  }
-})
-
-const emit = defineEmits([
-  'update:holdSwitch',
-  'update:arpSwitch', 
-  'handleOctave',
-  'noteOn',
-  'noteOff'
-])
-
-const _holdSwitch = computed({
-  get() {
-    return props.holdSwitch
-  },
-  set(bool) {
-    if (props.holdSwitch !== bool) {
-      emit('update:holdSwitch', bool)
-    }
-  }
-})
-
-const _arpSwitch = computed({
-  get() {
-    return props.arpSwitch
-  },
-  set(bool) {
-    if (props.arpSwitch !== bool) {
-      emit('update:arpSwitch', bool)
-    }
-  }
-})
-
-const _octave = computed(() => props.octave)
-
-const handleOctaveUp = () => {
-  if (props.octave < 5) {
-    emit('handleOctave', props.octave + 1)
-  }
-}
-
-const handleOctaveDown = () => {
-  if (props.octave > -5) {
-    emit('handleOctave', props.octave - 1)
-  }
-}
-
-const handleNoteOn = (event) => {
-  const coefficient = props.octave * 12
-  const noteNum = Number(event.target.dataset.note) + coefficient
-  emit('noteOn', noteNum)
-}
-
-const handleNoteOff = () => {
-  emit('noteOff')
-}
-</script>

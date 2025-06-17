@@ -1,3 +1,168 @@
+<script setup>
+import { ref, reactive, onMounted } from 'vue'
+import { WebMidi } from "webmidi"
+import _ from "lodash"
+import Knob from "./Knob.vue"
+import StoreButton from "./StoreButton.vue"
+import Keyboard from "./Keyboard.vue"
+import { params, types, midiChannelOptions } from "@/lib/params"
+import { storageAvailable } from "@/lib/utils"
+
+// Reactive state
+const holdSwitch = ref(true) // Keyboard hold toggle switch
+const arpSwitch = ref(false) // Arppegiator toggle switch
+const octave = ref(0) // Octave value
+const tab = ref("knobs") // Global tab
+const outputs = ref([]) // MIDI devices
+const output = ref(null) // Selected device
+const outputId = ref(null)
+const inputs = ref([])
+const inputId = ref(null)
+const outputMidiChannel = ref("all") // Selected MIDI channel
+const inputMidiChannel = ref("all")
+const patches = ref([]) // 10 Patch data
+
+// Temporary patch data
+const tmpPatch = reactive({
+  osc: {
+    type: { value: 0, label: "Sawtooth" },
+    shape: 1,
+    alt: 1,
+    rate: 1,
+    depth: 1
+  },
+  filter: {
+    type: { value: 0, label: "Low Pass 2" },
+    cutoff: 1,
+    res: 1,
+    rate: 1,
+    depth: 1
+  },
+  eg: {
+    type: { value: 0, label: "ADSR" },
+    attack: 1,
+    release: 1,
+    rate: 1,
+    depth: 1
+  },
+  mod: {
+    type: { value: 0, label: "Off" },
+    time: 1,
+    depth: 1
+  },
+  delay: {
+    type: { value: 0, label: "Off" },
+    time: 1,
+    depth: 1,
+    mix: 1
+  },
+  reverb: {
+    type: { value: 0, label: "Off" },
+    time: 1,
+    depth: 1,
+    mix: 1
+  },
+  arp: {
+    type: { value: 0, label: "Up" },
+    scale: { value: 0, label: "Octave" },
+    length: 127
+  }
+})
+
+// Methods
+const handleOctave = (val) => {
+  octave.value = val
+}
+
+const noteOn = (noteNum) => {
+  const outputDevice = WebMidi.getOutputById(outputId.value)
+  outputDevice.playNote(noteNum, outputMidiChannel.value)
+}
+
+const noteOff = () => {
+  const outputDevice = WebMidi.getOutputById(outputId.value)
+  if (!holdSwitch.value) {
+    for (let i = 0; i < 128; i++) {
+      outputDevice.stopNote(i, outputMidiChannel.value)
+    }
+  }
+}
+
+const handleControlChange = (cc, val) => {
+  // console.log("cc:", cc)
+  // console.log("value:", val)
+  const outputDevice = WebMidi.getOutputById(outputId.value)
+  outputDevice.sendControlChange(cc, val, outputMidiChannel.value)
+}
+
+const initStorage = () => {
+  const _tmpPatch = tmpPatch
+  patches.value[0] = _tmpPatch
+  if (storageAvailable) {
+    if (localStorage.patches == undefined) {
+      localStorage.setItem("patches", JSON.stringify(patches.value))
+    }
+  }
+}
+
+const handleSavePatch = (n) => {
+  if (storageAvailable()) {
+    const _tmpPatch = tmpPatch
+    patches.value[n] = _tmpPatch
+    localStorage.setItem("patches", JSON.stringify(patches.value))
+  }
+}
+
+const handleLoadPatch = (n) => {
+  if (storageAvailable()) {
+    const stores = JSON.parse(localStorage.getItem("patches"))
+    if (stores[n]) {
+      Object.assign(tmpPatch, stores[n])
+      sendPatch()
+    } else {
+      console.log("Empty!")
+    }
+  }
+}
+
+const sendPatch = () => {
+  _.forEach(tmpPatch, (val, key) => {
+    let parentKey = key
+    if (key !== "arp") {
+      _.forEach(tmpPatch[key], (val, key) => {
+        let cc = params[parentKey][key]["cc"]
+        if (key === "type") {
+          handleControlChange(cc, val.value)
+        } else {
+          handleControlChange(cc, val)
+        }
+      })
+    } else {
+      handleControlChange(117, tmpPatch.arp.type.value)
+      handleControlChange(118, tmpPatch.arp.scale.value)
+      handleControlChange(119, tmpPatch.arp.length)
+    }
+  })
+}
+
+// Lifecycle
+onMounted(() => {
+  // init MIDI
+  WebMidi.enable(err => {
+    if (err) {
+      console.error("MIDI could not be enabled.", err)
+    } else {
+      console.info("WebMIDI enabled!")
+      console.dir(WebMidi.outputs)
+      outputs.value = WebMidi.outputs
+      inputs.value = WebMidi.inputs
+    }
+  })
+  // init local storage
+  initStorage()
+})
+</script>
+
 <template>
   <div>
     <q-toolbar class="bg-grey-9 text-white shadow-2">
@@ -333,168 +498,3 @@
   margin-left: 6px;
 }
 </style>
-
-<script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { WebMidi } from "webmidi"
-import _ from "lodash"
-import Knob from "./Knob.vue"
-import StoreButton from "./StoreButton.vue"
-import Keyboard from "./Keyboard.vue"
-import { params, types, midiChannelOptions } from "@/lib/params"
-import { storageAvailable } from "@/lib/utils"
-
-// Reactive state
-const holdSwitch = ref(true) // Keyboard hold toggle switch
-const arpSwitch = ref(false) // Arppegiator toggle switch
-const octave = ref(0) // Octave value
-const tab = ref("knobs") // Global tab
-const outputs = ref([]) // MIDI devices
-const output = ref(null) // Selected device
-const outputId = ref(null)
-const inputs = ref([])
-const inputId = ref(null)
-const outputMidiChannel = ref("all") // Selected MIDI channel
-const inputMidiChannel = ref("all")
-const patches = ref([]) // 10 Patch data
-
-// Temporary patch data
-const tmpPatch = reactive({
-  osc: {
-    type: { value: 0, label: "Sawtooth" },
-    shape: 1,
-    alt: 1,
-    rate: 1,
-    depth: 1
-  },
-  filter: {
-    type: { value: 0, label: "Low Pass 2" },
-    cutoff: 1,
-    res: 1,
-    rate: 1,
-    depth: 1
-  },
-  eg: {
-    type: { value: 0, label: "ADSR" },
-    attack: 1,
-    release: 1,
-    rate: 1,
-    depth: 1
-  },
-  mod: {
-    type: { value: 0, label: "Off" },
-    time: 1,
-    depth: 1
-  },
-  delay: {
-    type: { value: 0, label: "Off" },
-    time: 1,
-    depth: 1,
-    mix: 1
-  },
-  reverb: {
-    type: { value: 0, label: "Off" },
-    time: 1,
-    depth: 1,
-    mix: 1
-  },
-  arp: {
-    type: { value: 0, label: "Up" },
-    scale: { value: 0, label: "Octave" },
-    length: 127
-  }
-})
-
-// Methods
-const handleOctave = (val) => {
-  octave.value = val
-}
-
-const noteOn = (noteNum) => {
-  const outputDevice = WebMidi.getOutputById(outputId.value)
-  outputDevice.playNote(noteNum, outputMidiChannel.value)
-}
-
-const noteOff = () => {
-  const outputDevice = WebMidi.getOutputById(outputId.value)
-  if (!holdSwitch.value) {
-    for (let i = 0; i < 128; i++) {
-      outputDevice.stopNote(i, outputMidiChannel.value)
-    }
-  }
-}
-
-const handleControlChange = (cc, val) => {
-  // console.log("cc:", cc)
-  // console.log("value:", val)
-  const outputDevice = WebMidi.getOutputById(outputId.value)
-  outputDevice.sendControlChange(cc, val, outputMidiChannel.value)
-}
-
-const initStorage = () => {
-  const _tmpPatch = tmpPatch
-  patches.value[0] = _tmpPatch
-  if (storageAvailable) {
-    if (localStorage.patches == undefined) {
-      localStorage.setItem("patches", JSON.stringify(patches.value))
-    }
-  }
-}
-
-const handleSavePatch = (n) => {
-  if (storageAvailable()) {
-    const _tmpPatch = tmpPatch
-    patches.value[n] = _tmpPatch
-    localStorage.setItem("patches", JSON.stringify(patches.value))
-  }
-}
-
-const handleLoadPatch = (n) => {
-  if (storageAvailable()) {
-    const stores = JSON.parse(localStorage.getItem("patches"))
-    if (stores[n]) {
-      Object.assign(tmpPatch, stores[n])
-      sendPatch()
-    } else {
-      console.log("Empty!")
-    }
-  }
-}
-
-const sendPatch = () => {
-  _.forEach(tmpPatch, (val, key) => {
-    let parentKey = key
-    if (key !== "arp") {
-      _.forEach(tmpPatch[key], (val, key) => {
-        let cc = params[parentKey][key]["cc"]
-        if (key === "type") {
-          handleControlChange(cc, val.value)
-        } else {
-          handleControlChange(cc, val)
-        }
-      })
-    } else {
-      handleControlChange(117, tmpPatch.arp.type.value)
-      handleControlChange(118, tmpPatch.arp.scale.value)
-      handleControlChange(119, tmpPatch.arp.length)
-    }
-  })
-}
-
-// Lifecycle
-onMounted(() => {
-  // init MIDI
-  WebMidi.enable(err => {
-    if (err) {
-      console.error("MIDI could not be enabled.", err)
-    } else {
-      console.info("WebMIDI enabled!")
-      console.dir(WebMidi.outputs)
-      outputs.value = WebMidi.outputs
-      inputs.value = WebMidi.inputs
-    }
-  })
-  // init local storage
-  initStorage()
-})
-</script>
