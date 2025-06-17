@@ -1,140 +1,145 @@
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { WebMidi } from "webmidi"
-import _ from "lodash"
-import Knob from "./Knob.vue"
-import StoreButton from "./StoreButton.vue"
-import Keyboard from "./Keyboard.vue"
-import { params, types, midiChannelOptions } from "@/lib/params"
-import { storageAvailable } from "@/lib/utils"
+import { WebMidi, type Output } from 'webmidi'
+import _ from 'lodash'
+import Knob from './Knob.vue'
+import StoreButton from './StoreButton.vue'
+import Keyboard from './Keyboard.vue'
+import { params, types, midiChannelOptions } from '@/lib/params'
+import { storageAvailable } from '@/lib/utils'
+import type { PatchData } from '@/types/components'
 
 // Reactive state
-const holdSwitch = ref(true) // Keyboard hold toggle switch
-const arpSwitch = ref(false) // Arppegiator toggle switch
-const octave = ref(0) // Octave value
-const tab = ref("knobs") // Global tab
-const outputs = ref([]) // MIDI devices
-const output = ref(null) // Selected device
-const outputId = ref(null)
-const inputs = ref([])
-const inputId = ref(null)
-const outputMidiChannel = ref("all") // Selected MIDI channel
-const inputMidiChannel = ref("all")
-const patches = ref([]) // 10 Patch data
+const holdSwitch = ref<boolean>(true) // Keyboard hold toggle switch
+const arpSwitch = ref<boolean>(false) // Arppegiator toggle switch
+const octave = ref<number>(0) // Octave value
+const tab = ref<string>('knobs') // Global tab
+const outputs = ref<Output[]>([]) // MIDI devices
+const outputId = ref<string | null>(null)
+const inputs = ref<Output[]>([])
+const outputMidiChannel = ref<string>('all') // Selected MIDI channel
+const patches = ref<PatchData[]>([]) // 10 Patch data
 
 // Temporary patch data
-const tmpPatch = reactive({
+const tmpPatch = reactive<PatchData>({
   osc: {
-    type: { value: 0, label: "Sawtooth" },
+    type: { value: 0, label: 'Sawtooth' },
     shape: 1,
     alt: 1,
     rate: 1,
     depth: 1
   },
   filter: {
-    type: { value: 0, label: "Low Pass 2" },
+    type: { value: 0, label: 'Low Pass 2' },
     cutoff: 1,
     res: 1,
     rate: 1,
     depth: 1
   },
   eg: {
-    type: { value: 0, label: "ADSR" },
+    type: { value: 0, label: 'ADSR' },
     attack: 1,
     release: 1,
     rate: 1,
     depth: 1
   },
   mod: {
-    type: { value: 0, label: "Off" },
+    type: { value: 0, label: 'Off' },
     time: 1,
     depth: 1
   },
   delay: {
-    type: { value: 0, label: "Off" },
+    type: { value: 0, label: 'Off' },
     time: 1,
     depth: 1,
     mix: 1
   },
   reverb: {
-    type: { value: 0, label: "Off" },
+    type: { value: 0, label: 'Off' },
     time: 1,
     depth: 1,
     mix: 1
   },
   arp: {
-    type: { value: 0, label: "Up" },
-    scale: { value: 0, label: "Octave" },
+    type: { value: 0, label: 'Up' },
+    scale: { value: 0, label: 'Octave' },
     length: 127
   }
 })
 
 // Methods
-const handleOctave = (val) => {
+const handleOctave = (val: number): void => {
   octave.value = val
 }
 
-const noteOn = (noteNum) => {
+const noteOn = (noteNum: number): void => {
   const outputDevice = WebMidi.getOutputById(outputId.value)
-  outputDevice.playNote(noteNum, outputMidiChannel.value)
+  if (outputDevice) {
+    outputDevice.playNote(noteNum, outputMidiChannel.value)
+  }
 }
 
-const noteOff = () => {
+const noteOff = (): void => {
   const outputDevice = WebMidi.getOutputById(outputId.value)
-  if (!holdSwitch.value) {
+  if (outputDevice && !holdSwitch.value) {
     for (let i = 0; i < 128; i++) {
       outputDevice.stopNote(i, outputMidiChannel.value)
     }
   }
 }
 
-const handleControlChange = (cc, val) => {
-  // console.log("cc:", cc)
-  // console.log("value:", val)
+const handleControlChange = (cc: number, val: number): void => {
+  console.log("cc:", cc)
+  console.log("value:", val)
   const outputDevice = WebMidi.getOutputById(outputId.value)
-  outputDevice.sendControlChange(cc, val, outputMidiChannel.value)
+  if (outputDevice) {
+    outputDevice.sendControlChange(cc, val, outputMidiChannel.value)
+  }
 }
 
-const initStorage = () => {
+const initStorage = (): void => {
   const _tmpPatch = tmpPatch
   patches.value[0] = _tmpPatch
-  if (storageAvailable) {
+  if (storageAvailable()) {
     if (localStorage.patches == undefined) {
-      localStorage.setItem("patches", JSON.stringify(patches.value))
+      localStorage.setItem('patches', JSON.stringify(patches.value))
     }
   }
 }
 
-const handleSavePatch = (n) => {
+const handleSavePatch = (n: number): void => {
   if (storageAvailable()) {
     const _tmpPatch = tmpPatch
     patches.value[n] = _tmpPatch
-    localStorage.setItem("patches", JSON.stringify(patches.value))
+    localStorage.setItem('patches', JSON.stringify(patches.value))
   }
 }
 
-const handleLoadPatch = (n) => {
+const handleLoadPatch = (n: number): void => {
   if (storageAvailable()) {
-    const stores = JSON.parse(localStorage.getItem("patches"))
-    if (stores[n]) {
-      Object.assign(tmpPatch, stores[n])
-      sendPatch()
-    } else {
-      console.log("Empty!")
+    const patchesData = localStorage.getItem('patches')
+    if (patchesData) {
+      const stores = JSON.parse(patchesData) as PatchData[]
+      if (stores[n]) {
+        Object.assign(tmpPatch, stores[n])
+        sendPatch()
+      } else {
+        console.log('Empty!')
+      }
     }
   }
 }
 
-const sendPatch = () => {
+const sendPatch = (): void => {
   _.forEach(tmpPatch, (val, key) => {
-    let parentKey = key
-    if (key !== "arp") {
-      _.forEach(tmpPatch[key], (val, key) => {
-        let cc = params[parentKey][key]["cc"]
-        if (key === "type") {
-          handleControlChange(cc, val.value)
+    const parentKey = key as keyof PatchData
+    if (key !== 'arp') {
+      _.forEach(tmpPatch[parentKey], (val, subKey) => {
+        const cc = params[parentKey][subKey as keyof (typeof params)[typeof parentKey]]['cc']
+        if (subKey === 'type') {
+          handleControlChange(cc, (val as { value: number }).value)
         } else {
-          handleControlChange(cc, val)
+          handleControlChange(cc, val as number)
         }
       })
     } else {
@@ -148,11 +153,11 @@ const sendPatch = () => {
 // Lifecycle
 onMounted(() => {
   // init MIDI
-  WebMidi.enable(err => {
+  WebMidi.enable((err?: Error) => {
     if (err) {
-      console.error("MIDI could not be enabled.", err)
+      console.error('MIDI could not be enabled.', err)
     } else {
-      console.info("WebMIDI enabled!")
+      console.info('WebMIDI enabled!')
       console.dir(WebMidi.outputs)
       outputs.value = WebMidi.outputs
       inputs.value = WebMidi.inputs
@@ -168,12 +173,7 @@ onMounted(() => {
     <q-toolbar class="bg-grey-9 text-white shadow-2">
       <span class="app-name">Nu:Tekt NTS-1 Web Controller</span>
       <q-space />
-      <q-tabs
-        v-model="tab"
-        align="justify"
-        class="tabs"
-        indicator-color="white"
-      >
+      <q-tabs v-model="tab" align="justify" class="tabs" indicator-color="white">
         <q-tab name="knobs" icon="fiber_smart_record" label="Knobs" />
         <q-tab name="keyboards" icon="straighten" label="Keyboard" />
         <q-tab name="settings" icon="settings_input_svideo" label="Settings" />
@@ -182,13 +182,9 @@ onMounted(() => {
 
     <q-tab-panels v-model="tab" animated>
       <q-tab-panel name="knobs">
-        <div class="row" style="margin-bottom: 10px;">
+        <div class="row" style="margin-bottom: 10px">
           <span v-for="(value, index) in 8" :key="index">
-            <store-button
-              :number="index"
-              @load="handleLoadPatch"
-              @save="handleSavePatch"
-            />
+            <store-button :number="index" @load="handleLoadPatch" @save="handleSavePatch" />
           </span>
         </div>
 
@@ -238,9 +234,7 @@ onMounted(() => {
                 <q-select
                   v-model="tmpPatch.filter.type"
                   :options="types.filter"
-                  @update:model-value="
-                    handleControlChange(params.filter.type.cc, $event.value)
-                  "
+                  @update:model-value="handleControlChange(params.filter.type.cc, $event.value)"
                 />
               </div>
               <div class="knobs text-center">
@@ -338,9 +332,7 @@ onMounted(() => {
                 <q-select
                   v-model="tmpPatch.delay.type"
                   :options="types.delay"
-                  @update:model-value="
-                    handleControlChange(params.delay.type.cc, $event.value)
-                  "
+                  @update:model-value="handleControlChange(params.delay.type.cc, $event.value)"
                 />
               </div>
               <div class="knobs text-center">
@@ -371,9 +363,7 @@ onMounted(() => {
                 <q-select
                   v-model="tmpPatch.reverb.type"
                   :options="types.reverb"
-                  @update:model-value="
-                    handleControlChange(params.reverb.type.cc, $event.value)
-                  "
+                  @update:model-value="handleControlChange(params.reverb.type.cc, $event.value)"
                 />
               </div>
               <div class="knobs text-center">
@@ -411,9 +401,7 @@ onMounted(() => {
                 <q-select
                   v-model="tmpPatch.arp.scale"
                   :options="types.scale"
-                  @update:model-value="
-                    handleControlChange(params.arp.scale.cc, $event.value)
-                  "
+                  @update:model-value="handleControlChange(params.arp.scale.cc, $event.value)"
                 />
               </div>
               <div class="knobs text-center">

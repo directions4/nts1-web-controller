@@ -1,35 +1,26 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
+import type { StoreButtonProps, StoreButtonEmits } from '@/types/components'
 
-const props = defineProps({
-  number: {
-    type: Number,
-    required: true,
-    default: 1
-  }
+const props = withDefaults(defineProps<StoreButtonProps>(), {
+  number: 1
 })
 
-const emit = defineEmits(['load', 'save'])
+const emit = defineEmits<StoreButtonEmits>()
 
-const label = computed(() => `Patch-${props.number + 1}`)
+const label = computed((): string => `Patch-${props.number + 1}`)
 
-const load = () => {
+const load = (): void => {
   emit('load', props.number)
 }
 
-const save = () => {
+const save = (): void => {
   emit('save', props.number)
 }
 </script>
 
 <template>
-  <q-btn-dropdown
-    split
-    color="cyan-8"
-    :label="label"
-    @click="load"
-    class="store-btn"
-  >
+  <q-btn-dropdown split color="cyan-8" :label="label" @click="load" class="store-btn">
     <q-list>
       <q-item clickable v-close-popup @click="save">
         <q-item-section>
