@@ -1,3 +1,27 @@
+<script setup>
+import { computed } from 'vue'
+
+const props = defineProps({
+  number: {
+    type: Number,
+    required: true,
+    default: 1
+  }
+})
+
+const emit = defineEmits(['load', 'save'])
+
+const label = computed(() => `Patch-${props.number + 1}`)
+
+const load = () => {
+  emit('load', props.number)
+}
+
+const save = () => {
+  emit('save', props.number)
+}
+</script>
+
 <template>
   <q-btn-dropdown
     split
@@ -21,29 +45,3 @@
   margin-right: 4px;
 }
 </style>
-
-<script>
-export default {
-  name: "StoreButton",
-  props: {
-    number: {
-      type: Number,
-      require: true,
-      default: 1
-    }
-  },
-  computed: {
-    label: function() {
-      return `Patch-${this.number + 1}`;
-    }
-  },
-  methods: {
-    load() {
-      this.$emit("load", this.number);
-    },
-    save() {
-      this.$emit("save", this.number);
-    }
-  }
-};
-</script>

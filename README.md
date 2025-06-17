@@ -31,19 +31,19 @@ Connect Korg NTS-1 to your PC through USB port, and access this URL with Chrome 
 
 ### Installation
 
-You need [node](https://nodejs.org/) and [yarn](https://yarnpkg.com/).
+You need [node](https://nodejs.org/).
 
 ```sh
-yarn install
+npm install
 ```
 
 ### Running
 
 ```sh
-yarn serve
+npm run dev
 ```
 
-access [http://localhost:8080/](http://localhost:8080/) .
+access [http://localhost:5173/](http://localhost:5173/) .
 
 ## License
 

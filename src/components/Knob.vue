@@ -1,3 +1,34 @@
+<script setup>
+import { computed } from 'vue'
+
+const props = defineProps({
+  params: {
+    type: Object,
+    required: true,
+    default: () => ({})
+  },
+  modelValue: {
+    type: Number,
+    required: true,
+    default: 0
+  }
+})
+
+const emit = defineEmits(['update:modelValue', 'handleControlChange'])
+
+const _value = computed({
+  get() {
+    return props.modelValue
+  },
+  set(num) {
+    if (props.modelValue !== num) {
+      emit('update:modelValue', num)
+      emit('handleControlChange', props.params.cc, num)
+    }
+  }
+})
+</script>
+
 <template>
   <div class="knob">
     <q-knob
@@ -20,37 +51,3 @@
   margin-bottom: 10px;
 }
 </style>
-
-<script>
-export default {
-  name: "Knob",
-  props: {
-    params: {
-      type: Object,
-      require: true,
-      default: () => ({})
-    },
-    value: {
-      type: Number,
-      require: true,
-      default: 0
-    }
-  },
-  data() {
-    return {};
-  },
-  computed: {
-    _value: {
-      get() {
-        return this.value;
-      },
-      set(num) {
-        if (this.value !== num) {
-          this.$emit("input", num);
-          this.$emit("handleControlChange", this.params.cc, num);
-        }
-      }
-    }
-  }
-};
-</script>
