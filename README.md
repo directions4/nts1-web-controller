@@ -1,6 +1,10 @@
 # NTS-1 Web Controller
 
-Control your KORG Nu:Tekt NTS-1 digitak kit from web browser.
+You can control the KORG Nu:Tekt NTS-1 from your web browser. It allows for real-time sound editing and also features librarian functionality.
+
+You can also install it on your own machine, but it also runs at the following URL.
+
+[https://directions4.github.io/nts1-web-controller/](https://directions4.github.io/nts1-web-controller/)
 
 ![screenshot.png](screenshot.png)
 
@@ -10,7 +14,7 @@ Control your KORG Nu:Tekt NTS-1 digitak kit from web browser.
 
 * Virtual keyboard
 
-* Patches stored in LocalStorage
+* Patches stored in Web LocalStorage
 
 ## Browser Support
 
@@ -18,13 +22,13 @@ This app works in all browsers that natively support the [Web MIDI API](https://
 
 * Chrome (Mac, GNU/Linux, Android & Windows)
 
-* Opera (Mac, GNU/Linux, Windows)
+* Firefox (Mac, GNU/Linux, Android & Windows)
 
 * Android WebView component (KitKat and above)
 
 ## Demo
 
-Connect Korg NTS-1 to your PC through USB port, and access this URL with Chrome (or Chromium).
+Connect Korg NTS-1 to your PC or SmartPhone through USB port, and access this URL with Chrome (or Chromium).
 [https://directions4.github.io/nts1-web-controller/](https://directions4.github.io/nts1-web-controller/)
 
 ## Local execution
