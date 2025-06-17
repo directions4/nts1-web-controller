@@ -334,177 +334,167 @@
 }
 </style>
 
-<script>
-import { WebMidi } from "webmidi";
-import _ from "lodash";
-import Knob from "./Knob.vue";
-import StoreButton from "./StoreButton.vue";
-import Keyboard from "./Keyboard.vue";
-import { params, types, midiChannelOptions } from "@/lib/params";
-import { storageAvailable } from "@/lib/utils";
+<script setup>
+import { ref, reactive, onMounted } from 'vue'
+import { WebMidi } from "webmidi"
+import _ from "lodash"
+import Knob from "./Knob.vue"
+import StoreButton from "./StoreButton.vue"
+import Keyboard from "./Keyboard.vue"
+import { params, types, midiChannelOptions } from "@/lib/params"
+import { storageAvailable } from "@/lib/utils"
 
-export default {
-  name: "Main",
-  components: {
-    Knob,
-    StoreButton,
-    Keyboard
+// Reactive state
+const holdSwitch = ref(true) // Keyboard hold toggle switch
+const arpSwitch = ref(false) // Arppegiator toggle switch
+const octave = ref(0) // Octave value
+const tab = ref("knobs") // Global tab
+const outputs = ref([]) // MIDI devices
+const output = ref(null) // Selected device
+const outputId = ref(null)
+const inputs = ref([])
+const inputId = ref(null)
+const outputMidiChannel = ref("all") // Selected MIDI channel
+const inputMidiChannel = ref("all")
+const patches = ref([]) // 10 Patch data
+
+// Temporary patch data
+const tmpPatch = reactive({
+  osc: {
+    type: { value: 0, label: "Sawtooth" },
+    shape: 1,
+    alt: 1,
+    rate: 1,
+    depth: 1
   },
-  data() {
-    return {
-      holdSwitch: true, // Keyboard hold toggle switch
-      arpSwitch: false, // Arppegiator toggle switch
-      octave: 0, // Octave value
-      params, // Defined parameters
-      types, // Defined types
-      midiChannelOptions, // MIDI Channel options
-      tab: "knobs", // Global tab
-      outputs: [], // MIDI devices
-      output: null, // Selected device
-      outputId: null,
-      inputs: [],
-      inputId: null,
-      outputMidiChannel: "all", // Selected MIDI channel
-      inputMidiChannel: "all",
-      patches: [], // 10 Patch data
-      tmpPatch: {
-        // a temporary patch
-        osc: {
-          type: { value: 0, label: "Sawtooth" },
-          shape: 1,
-          alt: 1,
-          rate: 1,
-          depth: 1
-        },
-        filter: {
-          type: { value: 0, label: "Low Pass 2" },
-          cutoff: 1,
-          res: 1,
-          rate: 1,
-          depth: 1
-        },
-        eg: {
-          type: { value: 0, label: "ADSR" },
-          attack: 1,
-          release: 1,
-          rate: 1,
-          depth: 1
-        },
-        mod: {
-          type: { value: 0, label: "Off" },
-          time: 1,
-          depth: 1
-        },
-        delay: {
-          type: { value: 0, label: "Off" },
-          time: 1,
-          depth: 1,
-          mix: 1
-        },
-        reverb: {
-          type: { value: 0, label: "Off" },
-          time: 1,
-          depth: 1,
-          mix: 1
-        },
-        arp: {
-          type: { value: 0, label: "Up" },
-          scale: { value: 0, label: "Octave" },
-          length: 127
-        }
-      }
-    };
+  filter: {
+    type: { value: 0, label: "Low Pass 2" },
+    cutoff: 1,
+    res: 1,
+    rate: 1,
+    depth: 1
   },
-  created() {
-    // init MIDI
-    WebMidi.enable(err => {
-      if (err) {
-        console.error("MIDI could not be enabled.", err);
-      } else {
-        console.info("WebMIDI enabled!");
-        console.dir(WebMidi.outputs);
-        this.outputs = WebMidi.outputs;
-        this.inputs = WebMidi.inputs;
-      }
-    });
-    // init local storage
-    this.initStorage();
+  eg: {
+    type: { value: 0, label: "ADSR" },
+    attack: 1,
+    release: 1,
+    rate: 1,
+    depth: 1
   },
-  methods: {
-    // Update octave value
-    handleOctave(val) {
-      this.octave = val;
-    },
-    // Play note
-    noteOn(noteNum) {
-      const output = WebMidi.getOutputById(this.outputId);
-      output.playNote(noteNum, this.outputMidiChannel);
-    },
-    // Stop note
-    noteOff() {
-      const output = WebMidi.getOutputById(this.outputId);
-      if (!this.holdSwitch) {
-        for (let i = 0; i < 128; i++) {
-          output.stopNote(i, this.outputMidiChannel);
-        }
-      }
-    },
-    // Control change
-    handleControlChange: function(cc, val) {
-      // console.log("cc:", cc);
-      // console.log("value:", val);
-      const output = WebMidi.getOutputById(this.outputId);
-      output.sendControlChange(cc, val, this.outputMidiChannel);
-    },
-    // init LocalStorage
-    initStorage() {
-      const _tmpPatch = this.tmpPatch;
-      this.patches[0] = _tmpPatch;
-      if (storageAvailable) {
-        if (localStorage.patches == undefined) {
-          localStorage.setItem("patches", JSON.stringify(this.patches));
-        }
-      }
-    },
-    // Save a patch to LocalStorage
-    handleSavePatch(n) {
-      if (storageAvailable()) {
-        const _tmpPatch = this.tmpPatch;
-        this.patches[n] = _tmpPatch;
-        localStorage.setItem("patches", JSON.stringify(this.patches));
-      }
-    },
-    // Load a patch from LocalStorage
-    handleLoadPatch(n) {
-      if (storageAvailable()) {
-        const stores = JSON.parse(localStorage.getItem("patches"));
-        if (stores[n]) {
-          this.tmpPatch = stores[n];
-          this.sendPatch();
-        } else {
-          console.log("Empty!");
-        }
-      }
-    },
-    sendPatch() {
-      _.forEach(this.tmpPatch, (val, key) => {
-        let parentKey = key;
-        if (key !== "arp") {
-          _.forEach(this.tmpPatch[key], (val, key) => {
-            let cc = this.params[parentKey][key]["cc"];
-            if (key === "type") {
-              this.handleControlChange(cc, val.value);
-            } else {
-              this.handleControlChange(cc, val);
-            }
-          });
-        } else {
-          this.handleControlChange(117, this.tmpPatch.arp.type.value);
-          this.handleControlChange(118, this.tmpPatch.arp.scale.value);
-          this.handleControlChange(119, this.tmpPatch.arp.length);
-        }
-      });
+  mod: {
+    type: { value: 0, label: "Off" },
+    time: 1,
+    depth: 1
+  },
+  delay: {
+    type: { value: 0, label: "Off" },
+    time: 1,
+    depth: 1,
+    mix: 1
+  },
+  reverb: {
+    type: { value: 0, label: "Off" },
+    time: 1,
+    depth: 1,
+    mix: 1
+  },
+  arp: {
+    type: { value: 0, label: "Up" },
+    scale: { value: 0, label: "Octave" },
+    length: 127
+  }
+})
+
+// Methods
+const handleOctave = (val) => {
+  octave.value = val
+}
+
+const noteOn = (noteNum) => {
+  const outputDevice = WebMidi.getOutputById(outputId.value)
+  outputDevice.playNote(noteNum, outputMidiChannel.value)
+}
+
+const noteOff = () => {
+  const outputDevice = WebMidi.getOutputById(outputId.value)
+  if (!holdSwitch.value) {
+    for (let i = 0; i < 128; i++) {
+      outputDevice.stopNote(i, outputMidiChannel.value)
     }
   }
-};
+}
+
+const handleControlChange = (cc, val) => {
+  // console.log("cc:", cc)
+  // console.log("value:", val)
+  const outputDevice = WebMidi.getOutputById(outputId.value)
+  outputDevice.sendControlChange(cc, val, outputMidiChannel.value)
+}
+
+const initStorage = () => {
+  const _tmpPatch = tmpPatch
+  patches.value[0] = _tmpPatch
+  if (storageAvailable) {
+    if (localStorage.patches == undefined) {
+      localStorage.setItem("patches", JSON.stringify(patches.value))
+    }
+  }
+}
+
+const handleSavePatch = (n) => {
+  if (storageAvailable()) {
+    const _tmpPatch = tmpPatch
+    patches.value[n] = _tmpPatch
+    localStorage.setItem("patches", JSON.stringify(patches.value))
+  }
+}
+
+const handleLoadPatch = (n) => {
+  if (storageAvailable()) {
+    const stores = JSON.parse(localStorage.getItem("patches"))
+    if (stores[n]) {
+      Object.assign(tmpPatch, stores[n])
+      sendPatch()
+    } else {
+      console.log("Empty!")
+    }
+  }
+}
+
+const sendPatch = () => {
+  _.forEach(tmpPatch, (val, key) => {
+    let parentKey = key
+    if (key !== "arp") {
+      _.forEach(tmpPatch[key], (val, key) => {
+        let cc = params[parentKey][key]["cc"]
+        if (key === "type") {
+          handleControlChange(cc, val.value)
+        } else {
+          handleControlChange(cc, val)
+        }
+      })
+    } else {
+      handleControlChange(117, tmpPatch.arp.type.value)
+      handleControlChange(118, tmpPatch.arp.scale.value)
+      handleControlChange(119, tmpPatch.arp.length)
+    }
+  })
+}
+
+// Lifecycle
+onMounted(() => {
+  // init MIDI
+  WebMidi.enable(err => {
+    if (err) {
+      console.error("MIDI could not be enabled.", err)
+    } else {
+      console.info("WebMIDI enabled!")
+      console.dir(WebMidi.outputs)
+      outputs.value = WebMidi.outputs
+      inputs.value = WebMidi.inputs
+    }
+  })
+  // init local storage
+  initStorage()
+})
 </script>

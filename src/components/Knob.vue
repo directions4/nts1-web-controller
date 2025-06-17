@@ -21,36 +21,33 @@
 }
 </style>
 
-<script>
-export default {
-  name: "Knob",
-  props: {
-    params: {
-      type: Object,
-      require: true,
-      default: () => ({})
-    },
-    modelValue: {
-      type: Number,
-      require: true,
-      default: 0
-    }
+<script setup>
+import { computed } from 'vue'
+
+const props = defineProps({
+  params: {
+    type: Object,
+    required: true,
+    default: () => ({})
   },
-  data() {
-    return {};
+  modelValue: {
+    type: Number,
+    required: true,
+    default: 0
+  }
+})
+
+const emit = defineEmits(['update:modelValue', 'handleControlChange'])
+
+const _value = computed({
+  get() {
+    return props.modelValue
   },
-  computed: {
-    _value: {
-      get() {
-        return this.modelValue;
-      },
-      set(num) {
-        if (this.modelValue !== num) {
-          this.$emit("update:modelValue", num);
-          this.$emit("handleControlChange", this.params.cc, num);
-        }
-      }
+  set(num) {
+    if (props.modelValue !== num) {
+      emit('update:modelValue', num)
+      emit('handleControlChange', props.params.cc, num)
     }
   }
-};
+})
 </script>
