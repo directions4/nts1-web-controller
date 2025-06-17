@@ -30,7 +30,7 @@ export default {
       require: true,
       default: () => ({})
     },
-    value: {
+    modelValue: {
       type: Number,
       require: true,
       default: 0
@@ -42,11 +42,11 @@ export default {
   computed: {
     _value: {
       get() {
-        return this.value;
+        return this.modelValue;
       },
       set(num) {
-        if (this.value !== num) {
-          this.$emit("input", num);
+        if (this.modelValue !== num) {
+          this.$emit("update:modelValue", num);
           this.$emit("handleControlChange", this.params.cc, num);
         }
       }

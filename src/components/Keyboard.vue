@@ -120,7 +120,7 @@ export default {
       },
       set(bool) {
         if (this.holdSwitch !== bool) {
-          this.$emit("inputHold", bool);
+          this.$emit("update:holdSwitch", bool);
         }
       }
     },
@@ -130,7 +130,7 @@ export default {
       },
       set(bool) {
         if (this.arpSwitch !== bool) {
-          this.$emit("inputArp", bool);
+          this.$emit("update:arpSwitch", bool);
         }
       }
     },

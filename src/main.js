@@ -1,10 +1,21 @@
-import Vue from "vue";
-import App from "./App.vue";
-import "./registerServiceWorker";
-import "./quasar";
+import { createApp } from 'vue'
+import { Quasar, ClosePopup } from 'quasar'
+import App from './App.vue'
+import './registerServiceWorker'
 
-Vue.config.productionTip = false;
+// Import icon libraries
+import '@quasar/extras/material-icons/material-icons.css'
 
-new Vue({
-  render: h => h(App)
-}).$mount("#app");
+// Import Quasar css
+import 'quasar/src/css/index.sass'
+
+const myApp = createApp(App)
+
+myApp.use(Quasar, {
+  plugins: {},
+  directives: {
+    ClosePopup
+  }
+})
+
+myApp.mount('#app')

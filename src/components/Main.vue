@@ -37,32 +37,28 @@
                 <q-select
                   v-model="tmpPatch.osc.type"
                   :options="types.osc"
-                  @input="handleControlChange(params.osc.type.cc, $event.value)"
+                  @update:model-value="handleControlChange(params.osc.type.cc, $event.value)"
                 />
               </div>
               <div class="knobs text-center">
                 <knob
                   :params="params.osc.shape"
-                  :value="tmpPatch.osc.shape"
-                  @input="tmpPatch.osc.shape = $event"
+                  v-model="tmpPatch.osc.shape"
                   @handleControlChange="handleControlChange"
                 />
                 <knob
                   :params="params.osc.alt"
-                  :value="tmpPatch.osc.alt"
-                  @input="tmpPatch.osc.alt = $event"
+                  v-model="tmpPatch.osc.alt"
                   @handleControlChange="handleControlChange"
                 />
                 <knob
                   :params="params.osc.rate"
-                  :value="tmpPatch.osc.rate"
-                  @input="tmpPatch.osc.rate = $event"
+                  v-model="tmpPatch.osc.rate"
                   @handleControlChange="handleControlChange"
                 />
                 <knob
                   :params="params.osc.depth"
-                  :value="tmpPatch.osc.depth"
-                  @input="tmpPatch.osc.depth = $event"
+                  v-model="tmpPatch.osc.depth"
                   @handleControlChange="handleControlChange"
                 />
               </div>
@@ -77,7 +73,7 @@
                 <q-select
                   v-model="tmpPatch.filter.type"
                   :options="types.filter"
-                  @input="
+                  @update:model-value="
                     handleControlChange(params.filter.type.cc, $event.value)
                   "
                 />
@@ -85,26 +81,22 @@
               <div class="knobs text-center">
                 <knob
                   :params="params.filter.cutoff"
-                  :value="tmpPatch.filter.cutoff"
-                  @input="tmpPatch.filter.cutoff = $event"
+                  v-model="tmpPatch.filter.cutoff"
                   @handleControlChange="handleControlChange"
                 />
                 <knob
                   :params="params.filter.res"
-                  :value="tmpPatch.filter.res"
-                  @input="tmpPatch.filter.res = $event"
+                  v-model="tmpPatch.filter.res"
                   @handleControlChange="handleControlChange"
                 />
                 <knob
                   :params="params.filter.rate"
-                  :value="tmpPatch.filter.rate"
-                  @input="tmpPatch.filter.rate = $event"
+                  v-model="tmpPatch.filter.rate"
                   @handleControlChange="handleControlChange"
                 />
                 <knob
                   :params="params.filter.depth"
-                  :value="tmpPatch.filter.depth"
-                  @input="tmpPatch.filter.depth = $event"
+                  v-model="tmpPatch.filter.depth"
                   @handleControlChange="handleControlChange"
                 />
               </div>
@@ -119,32 +111,28 @@
                 <q-select
                   v-model="tmpPatch.eg.type"
                   :options="types.eg"
-                  @input="handleControlChange(params.eg.type.cc, $event.value)"
+                  @update:model-value="handleControlChange(params.eg.type.cc, $event.value)"
                 />
               </div>
               <div class="knobs text-center">
                 <knob
                   :params="params.eg.attack"
-                  :value="tmpPatch.eg.attack"
-                  @input="tmpPatch.eg.attack = $event"
+                  v-model="tmpPatch.eg.attack"
                   @handleControlChange="handleControlChange"
                 />
                 <knob
                   :params="params.eg.release"
-                  :value="tmpPatch.eg.release"
-                  @input="tmpPatch.eg.release = $event"
+                  v-model="tmpPatch.eg.release"
                   @handleControlChange="handleControlChange"
                 />
                 <knob
                   :params="params.eg.rate"
-                  :value="tmpPatch.eg.rate"
-                  @input="tmpPatch.eg.rate = $event"
+                  v-model="tmpPatch.eg.rate"
                   @handleControlChange="handleControlChange"
                 />
                 <knob
                   :params="params.eg.depth"
-                  :value="tmpPatch.eg.depth"
-                  @input="tmpPatch.eg.depth = $event"
+                  v-model="tmpPatch.eg.depth"
                   @handleControlChange="handleControlChange"
                 />
               </div>
@@ -159,20 +147,18 @@
                 <q-select
                   v-model="tmpPatch.mod.type"
                   :options="types.mod"
-                  @input="handleControlChange(params.mod.type.cc, $event.value)"
+                  @update:model-value="handleControlChange(params.mod.type.cc, $event.value)"
                 />
               </div>
               <div class="knobs text-center">
                 <knob
                   :params="params.mod.time"
-                  :value="tmpPatch.mod.time"
-                  @input="tmpPatch.mod.time = $event"
+                  v-model="tmpPatch.mod.time"
                   @handleControlChange="handleControlChange"
                 />
                 <knob
                   :params="params.mod.depth"
-                  :value="tmpPatch.mod.depth"
-                  @input="tmpPatch.mod.depth = $event"
+                  v-model="tmpPatch.mod.depth"
                   @handleControlChange="handleControlChange"
                 />
               </div>
@@ -187,7 +173,7 @@
                 <q-select
                   v-model="tmpPatch.delay.type"
                   :options="types.delay"
-                  @input="
+                  @update:model-value="
                     handleControlChange(params.delay.type.cc, $event.value)
                   "
                 />
@@ -195,20 +181,17 @@
               <div class="knobs text-center">
                 <knob
                   :params="params.delay.time"
-                  :value="tmpPatch.delay.time"
-                  @input="tmpPatch.delay.time = $event"
+                  v-model="tmpPatch.delay.time"
                   @handleControlChange="handleControlChange"
                 />
                 <knob
                   :params="params.delay.depth"
-                  :value="tmpPatch.delay.depth"
-                  @input="tmpPatch.delay.depth = $event"
+                  v-model="tmpPatch.delay.depth"
                   @handleControlChange="handleControlChange"
                 />
                 <knob
                   :params="params.delay.mix"
-                  :value="tmpPatch.delay.mix"
-                  @input="tmpPatch.delay.mix = $event"
+                  v-model="tmpPatch.delay.mix"
                   @handleControlChange="handleControlChange"
                 />
               </div>
@@ -223,7 +206,7 @@
                 <q-select
                   v-model="tmpPatch.reverb.type"
                   :options="types.reverb"
-                  @input="
+                  @update:model-value="
                     handleControlChange(params.reverb.type.cc, $event.value)
                   "
                 />
@@ -231,20 +214,17 @@
               <div class="knobs text-center">
                 <knob
                   :params="params.reverb.time"
-                  :value="tmpPatch.reverb.time"
-                  @input="tmpPatch.reverb.time = $event"
+                  v-model="tmpPatch.reverb.time"
                   @handleControlChange="handleControlChange"
                 />
                 <knob
                   :params="params.reverb.depth"
-                  :value="tmpPatch.reverb.depth"
-                  @input="tmpPatch.reverb.depth = $event"
+                  v-model="tmpPatch.reverb.depth"
                   @handleControlChange="handleControlChange"
                 />
                 <knob
                   :params="params.reverb.mix"
-                  :value="tmpPatch.reverb.mix"
-                  @input="tmpPatch.reverb.mix = $event"
+                  v-model="tmpPatch.reverb.mix"
                   @handleControlChange="handleControlChange"
                 />
               </div>
@@ -259,14 +239,14 @@
                 <q-select
                   v-model="tmpPatch.arp.type"
                   :options="types.arp"
-                  @input="handleControlChange(params.arp.type.cc, $event.value)"
+                  @update:model-value="handleControlChange(params.arp.type.cc, $event.value)"
                 />
               </div>
               <div>
                 <q-select
                   v-model="tmpPatch.arp.scale"
                   :options="types.scale"
-                  @input="
+                  @update:model-value="
                     handleControlChange(params.arp.scale.cc, $event.value)
                   "
                 />
@@ -274,8 +254,7 @@
               <div class="knobs text-center">
                 <knob
                   :params="params.arp.length"
-                  :value="tmpPatch.arp.length"
-                  @input="tmpPatch.arp.length = $event"
+                  v-model="tmpPatch.arp.length"
                   @handleControlChange="handleControlChange"
                 />
               </div>
@@ -286,9 +265,9 @@
       <q-tab-panel name="keyboards">
         <keyboard
           :arpSwitch="arpSwitch"
-          @inputArp="arpSwitch = $event"
+          @update:arpSwitch="arpSwitch = $event"
           :holdSwitch="holdSwitch"
-          @inputHold="holdSwitch = $event"
+          @update:holdSwitch="holdSwitch = $event"
           :octave="octave"
           @handleOctave="handleOctave"
           @noteOn="noteOn"
@@ -356,15 +335,14 @@
 </style>
 
 <script>
-import webmidi from "webmidi";
+import { WebMidi } from "webmidi";
 import _ from "lodash";
-import Knob from "./Knob";
-import StoreButton from "./StoreButton";
-import Keyboard from "./Keyboard";
+import Knob from "./Knob.vue";
+import StoreButton from "./StoreButton.vue";
+import Keyboard from "./Keyboard.vue";
 import { params, types, midiChannelOptions } from "@/lib/params";
 import { storageAvailable } from "@/lib/utils";
 
-export let midiAccess;
 export default {
   name: "Main",
   components: {
@@ -439,14 +417,14 @@ export default {
   },
   created() {
     // init MIDI
-    webmidi.enable(err => {
+    WebMidi.enable(err => {
       if (err) {
         console.error("MIDI could not be enabled.", err);
       } else {
-        console.info("WebMIDI ebabled!");
-        console.dir(webmidi.outputs);
-        this.outputs = webmidi.outputs;
-        this.inputs = webmidi.inputs;
+        console.info("WebMIDI enabled!");
+        console.dir(WebMidi.outputs);
+        this.outputs = WebMidi.outputs;
+        this.inputs = WebMidi.inputs;
       }
     });
     // init local storage
@@ -459,12 +437,12 @@ export default {
     },
     // Play note
     noteOn(noteNum) {
-      const output = webmidi.getOutputById(this.outputId);
+      const output = WebMidi.getOutputById(this.outputId);
       output.playNote(noteNum, this.outputMidiChannel);
     },
     // Stop note
     noteOff() {
-      const output = webmidi.getOutputById(this.outputId);
+      const output = WebMidi.getOutputById(this.outputId);
       if (!this.holdSwitch) {
         for (let i = 0; i < 128; i++) {
           output.stopNote(i, this.outputMidiChannel);
@@ -475,7 +453,7 @@ export default {
     handleControlChange: function(cc, val) {
       // console.log("cc:", cc);
       // console.log("value:", val);
-      const output = webmidi.getOutputById(this.outputId);
+      const output = WebMidi.getOutputById(this.outputId);
       output.sendControlChange(cc, val, this.outputMidiChannel);
     },
     // init LocalStorage
