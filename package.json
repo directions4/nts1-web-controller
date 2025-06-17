@@ -27,7 +27,7 @@
     "clean:docs": "rimraf ./docs",
     "copy:dist": "cpx './dist/**/*' ./docs -C",
     "gh-pages": "run-s build copy:dist",
-    "browser-sync": "yarn build && browser-sync start --config bs-config.js"
+    "browser-sync": "npm run build && browser-sync start --config bs-config.js"
   },
   "dependencies": {
     "@quasar/extras": "^1.16.0",
