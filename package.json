@@ -1,6 +1,6 @@
 {
   "name": "nts1-web-controller",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Control your KORG Nu:Tekt NTS-1 from Chrome web browser.",
   "author": "Satoru SHIKATA (https://github.com/directions4/)",
