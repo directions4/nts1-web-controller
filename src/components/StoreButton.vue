@@ -23,13 +23,7 @@ const save = () => {
 </script>
 
 <template>
-  <q-btn-dropdown
-    split
-    color="cyan-8"
-    :label="label"
-    @click="load"
-    class="store-btn"
-  >
+  <q-btn-dropdown split color="cyan-8" :label="label" @click="load" class="store-btn">
     <q-list>
       <q-item clickable v-close-popup @click="save">
         <q-item-section>

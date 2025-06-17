@@ -7,28 +7,28 @@ export const params = {
       min: 0,
       max: 127,
       step: 1,
-      label: "Shape",
+      label: 'Shape',
       cc: 54
     },
     alt: {
       min: 0,
       max: 127,
       step: 1,
-      label: "Alternate",
+      label: 'Alternate',
       cc: 55
     },
     rate: {
       min: 0,
       max: 127,
       step: 1,
-      label: "LFO Rate",
+      label: 'LFO Rate',
       cc: 24
     },
     depth: {
       min: 0,
       max: 127,
       step: 1,
-      label: "LFO Depth",
+      label: 'LFO Depth',
       cc: 26
     }
   },
@@ -40,28 +40,28 @@ export const params = {
       min: 0,
       max: 127,
       step: 1,
-      label: "Cut Off",
+      label: 'Cut Off',
       cc: 43
     },
     res: {
       min: 0,
       max: 127,
       step: 1,
-      label: "Resonance",
+      label: 'Resonance',
       cc: 44
     },
     depth: {
       min: 0,
       max: 127,
       step: 1,
-      label: "Sweep Depth",
+      label: 'Sweep Depth',
       cc: 45
     },
     rate: {
       min: 0,
       max: 127,
       step: 1,
-      label: "Sweep Rate",
+      label: 'Sweep Rate',
       cc: 46
     }
   },
@@ -73,28 +73,28 @@ export const params = {
       min: 0,
       max: 127,
       step: 1,
-      label: "Attack",
+      label: 'Attack',
       cc: 16
     },
     release: {
       min: 0,
       max: 127,
       step: 1,
-      label: "Release",
+      label: 'Release',
       cc: 19
     },
     depth: {
       min: 0,
       max: 127,
       step: 1,
-      label: "Trem. Depth",
+      label: 'Trem. Depth',
       cc: 20
     },
     rate: {
       min: 0,
       max: 127,
       step: 1,
-      label: "Trem. Rate",
+      label: 'Trem. Rate',
       cc: 21
     }
   },
@@ -106,14 +106,14 @@ export const params = {
       min: 0,
       max: 127,
       step: 1,
-      label: "Time",
+      label: 'Time',
       cc: 28
     },
     depth: {
       min: 0,
       max: 127,
       step: 1,
-      label: "Depth",
+      label: 'Depth',
       cc: 29
     }
   },
@@ -125,21 +125,21 @@ export const params = {
       min: 0,
       max: 127,
       step: 1,
-      label: "Time",
+      label: 'Time',
       cc: 30
     },
     depth: {
       min: 0,
       max: 127,
       step: 1,
-      label: "Depth",
+      label: 'Depth',
       cc: 31
     },
     mix: {
       min: 0,
       max: 127,
       step: 1,
-      label: "Mix",
+      label: 'Mix',
       cc: 33
     }
   },
@@ -151,21 +151,21 @@ export const params = {
       min: 0,
       max: 127,
       step: 1,
-      label: "Time",
+      label: 'Time',
       cc: 34
     },
     depth: {
       min: 0,
       max: 127,
       step: 1,
-      label: "Depth",
+      label: 'Depth',
       cc: 35
     },
     mix: {
       min: 0,
       max: 127,
       step: 1,
-      label: "Mix",
+      label: 'Mix',
       cc: 36
     }
   },
@@ -180,251 +180,251 @@ export const params = {
       min: 0,
       max: 127,
       step: 1,
-      label: "Length",
+      label: 'Length',
       cc: 119
     }
   }
-};
+}
 
 export const types = {
   osc: [
     {
       value: 0,
-      label: "Sawtooth"
+      label: 'Sawtooth'
     },
     {
       value: 31,
-      label: "Triangle"
+      label: 'Triangle'
     },
     {
       value: 62,
-      label: "Square"
+      label: 'Square'
     },
     {
       value: 93,
-      label: "VPN"
+      label: 'VPN'
     },
     {
       value: 127,
-      label: "USER01"
+      label: 'USER01'
     }
   ],
   filter: [
     {
       value: 0,
-      label: "LowPass 2p"
+      label: 'LowPass 2p'
     },
     {
       value: 21,
-      label: "LowPass 4p"
+      label: 'LowPass 4p'
     },
     {
       value: 42,
-      label: "BandPass 2p"
+      label: 'BandPass 2p'
     },
     {
       value: 63,
-      label: "BandPass 4p"
+      label: 'BandPass 4p'
     },
     {
       value: 84,
-      label: "HightPass 2p"
+      label: 'HightPass 2p'
     },
     {
       value: 105,
-      label: "HightPass 4p"
+      label: 'HightPass 4p'
     },
     {
       value: 127,
-      label: "Off"
+      label: 'Off'
     }
   ],
   eg: [
     {
       value: 0,
-      label: "ADSR"
+      label: 'ADSR'
     },
     {
       value: 31,
-      label: "AHR"
+      label: 'AHR'
     },
     {
       value: 62,
-      label: "AR"
+      label: 'AR'
     },
     {
       value: 93,
-      label: "AR Loop"
+      label: 'AR Loop'
     },
     {
       value: 127,
-      label: "Open"
+      label: 'Open'
     }
   ],
   mod: [
     {
       value: 0,
-      label: "Off"
+      label: 'Off'
     },
     {
       value: 25,
-      label: "Chorus"
+      label: 'Chorus'
     },
     {
       value: 50,
-      label: "Ensemble"
+      label: 'Ensemble'
     },
     {
       value: 75,
-      label: "Phaser"
+      label: 'Phaser'
     },
     {
       value: 100,
-      label: "Flanger"
+      label: 'Flanger'
     },
     {
       value: 127,
-      label: "Random"
+      label: 'Random'
     }
   ],
   delay: [
     {
       value: 0,
-      label: "Off"
+      label: 'Off'
     },
     {
       value: 25,
-      label: "Stereo"
+      label: 'Stereo'
     },
     {
       value: 50,
-      label: "Mono"
+      label: 'Mono'
     },
     {
       value: 75,
-      label: "Ping Pong"
+      label: 'Ping Pong'
     },
     {
       value: 100,
-      label: "Hight Pass"
+      label: 'Hight Pass'
     },
     {
       value: 127,
-      label: "Tape"
+      label: 'Tape'
     }
   ],
   reverb: [
     {
       value: 0,
-      label: "Off"
+      label: 'Off'
     },
     {
       value: 25,
-      label: "Hall"
+      label: 'Hall'
     },
     {
       value: 50,
-      label: "Plate"
+      label: 'Plate'
     },
     {
       value: 75,
-      label: "Space"
+      label: 'Space'
     },
     {
       value: 100,
-      label: "Riser"
+      label: 'Riser'
     },
     {
       value: 127,
-      label: "Submarine"
+      label: 'Submarine'
     }
   ],
   arp: [
     {
       value: 0,
-      label: "Up"
+      label: 'Up'
     },
     {
       value: 14,
-      label: "Down"
+      label: 'Down'
     },
     {
       value: 28,
-      label: "Up-Down"
+      label: 'Up-Down'
     },
     {
       value: 42,
-      label: "Down-Up"
+      label: 'Down-Up'
     },
     {
       value: 56,
-      label: "Converge"
+      label: 'Converge'
     },
     {
       value: 70,
-      label: "Diverge"
+      label: 'Diverge'
     },
     {
       value: 84,
-      label: "Conv.-Div."
+      label: 'Conv.-Div.'
     },
     {
       value: 98,
-      label: "Div.-Conv."
+      label: 'Div.-Conv.'
     },
     {
       value: 112,
-      label: "Random"
+      label: 'Random'
     },
     {
       value: 127,
-      label: "Stchastic"
+      label: 'Stchastic'
     }
   ],
   scale: [
     {
       value: 0,
-      label: "Octave"
+      label: 'Octave'
     },
     {
       value: 25,
-      label: "Major Triad"
+      label: 'Major Triad'
     },
     {
       value: 50,
-      label: "Major Suspended"
+      label: 'Major Suspended'
     },
     {
       value: 75,
-      label: "Majaor Augumented"
+      label: 'Majaor Augumented'
     },
     {
       value: 100,
-      label: "Minor Triad"
+      label: 'Minor Triad'
     },
     {
       value: 127,
-      label: "Minor Diminished"
+      label: 'Minor Diminished'
     }
   ]
-};
+}
 
 export const midiChannelOptions = [
-  "all",
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "10",
-  "11",
-  "12",
-  "13",
-  "14",
-  "15",
-  "16"
-];
+  'all',
+  '1',
+  '2',
+  '3',
+  '4',
+  '5',
+  '6',
+  '7',
+  '8',
+  '9',
+  '10',
+  '11',
+  '12',
+  '13',
+  '14',
+  '15',
+  '16'
+]

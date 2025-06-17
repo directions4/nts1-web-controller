@@ -1,18 +1,18 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-page-container>
-      <Main />
+      <MainController />
     </q-page-container>
   </q-layout>
 </template>
 
 <script>
-import Main from "./components/Main.vue";
+import MainController from './components/Main.vue'
 
 export default {
-  name: "App",
+  name: 'App',
   components: {
-    Main
+    MainController
   }
-};
+}
 </script>

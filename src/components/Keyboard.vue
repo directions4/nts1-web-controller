@@ -24,7 +24,7 @@ const props = defineProps({
 
 const emit = defineEmits([
   'update:holdSwitch',
-  'update:arpSwitch', 
+  'update:arpSwitch',
   'handleOctave',
   'noteOn',
   'noteOff'
@@ -41,19 +41,6 @@ const _holdSwitch = computed({
   }
 })
 
-const _arpSwitch = computed({
-  get() {
-    return props.arpSwitch
-  },
-  set(bool) {
-    if (props.arpSwitch !== bool) {
-      emit('update:arpSwitch', bool)
-    }
-  }
-})
-
-const _octave = computed(() => props.octave)
-
 const handleOctaveUp = () => {
   if (props.octave < 5) {
     emit('handleOctave', props.octave + 1)
@@ -66,7 +53,7 @@ const handleOctaveDown = () => {
   }
 }
 
-const handleNoteOn = (event) => {
+const handleNoteOn = event => {
   const coefficient = props.octave * 12
   const noteNum = Number(event.target.dataset.note) + coefficient
   emit('noteOn', noteNum)
@@ -92,14 +79,14 @@ const handleNoteOff = () => {
           icon="keyboard_arrow_left"
           label="Down"
           @click="handleOctaveDown"
-          style="width:120px;margin: 0 10px 0 0;"
+          style="width: 120px; margin: 0 10px 0 0"
         />
         <q-btn
           color="primary"
           icon-right="keyboard_arrow_right"
           label="Up"
           @click="handleOctaveUp"
-          style="width:120px;"
+          style="width: 120px"
         />
       </div>
       <div class="col text-right">
