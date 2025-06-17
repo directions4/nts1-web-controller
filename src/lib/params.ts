@@ -1,4 +1,85 @@
-export const params = {
+// Type definitions
+export interface ParamConfig {
+  min: number
+  max: number
+  step: number
+  label: string
+  cc: number
+}
+
+export interface TypeOnlyConfig {
+  cc: number
+}
+
+export interface OptionType {
+  value: number
+  label: string
+}
+
+export interface MidiChannelOption {
+  value: string
+  label: string
+}
+
+export interface ParamsStructure {
+  osc: {
+    type: TypeOnlyConfig
+    shape: ParamConfig
+    alt: ParamConfig
+    rate: ParamConfig
+    depth: ParamConfig
+  }
+  filter: {
+    type: TypeOnlyConfig
+    cutoff: ParamConfig
+    res: ParamConfig
+    rate: ParamConfig
+    depth: ParamConfig
+  }
+  eg: {
+    type: TypeOnlyConfig
+    attack: ParamConfig
+    release: ParamConfig
+    rate: ParamConfig
+    depth: ParamConfig
+  }
+  mod: {
+    type: TypeOnlyConfig
+    time: ParamConfig
+    depth: ParamConfig
+  }
+  delay: {
+    type: TypeOnlyConfig
+    time: ParamConfig
+    depth: ParamConfig
+    mix: ParamConfig
+  }
+  reverb: {
+    type: TypeOnlyConfig
+    time: ParamConfig
+    depth: ParamConfig
+    mix: ParamConfig
+  }
+  arp: {
+    type: TypeOnlyConfig
+    scale: TypeOnlyConfig
+    length: ParamConfig
+  }
+}
+
+export interface TypesStructure {
+  osc: OptionType[]
+  filter: OptionType[]
+  eg: OptionType[]
+  mod: OptionType[]
+  delay: OptionType[]
+  reverb: OptionType[]
+  arp: OptionType[]
+  scale: OptionType[]
+}
+
+// Parameter configurations
+export const params: ParamsStructure = {
   osc: {
     type: {
       cc: 53
@@ -48,78 +129,59 @@ export const params = {
       max: 127,
       step: 1,
       label: 'Resonance',
-      cc: 44
-    },
-    depth: {
-      min: 0,
-      max: 127,
-      step: 1,
-      label: 'Sweep Depth',
-      cc: 45
+      cc: 71
     },
     rate: {
       min: 0,
       max: 127,
       step: 1,
+      label: 'Sweep Depth',
+      cc: 23
+    },
+    depth: {
+      min: 0,
+      max: 127,
+      step: 1,
       label: 'Sweep Rate',
-      cc: 46
+      cc: 25
     }
   },
   eg: {
     type: {
-      cc: 14
+      cc: 72
     },
     attack: {
       min: 0,
       max: 127,
       step: 1,
       label: 'Attack',
-      cc: 16
+      cc: 73
     },
     release: {
       min: 0,
       max: 127,
       step: 1,
       label: 'Release',
-      cc: 19
-    },
-    depth: {
-      min: 0,
-      max: 127,
-      step: 1,
-      label: 'Trem. Depth',
-      cc: 20
+      cc: 75
     },
     rate: {
       min: 0,
       max: 127,
       step: 1,
-      label: 'Trem. Rate',
-      cc: 21
-    }
-  },
-  mod: {
-    type: {
-      cc: 88
-    },
-    time: {
-      min: 0,
-      max: 127,
-      step: 1,
-      label: 'Time',
-      cc: 28
+      label: 'Trem. Depth',
+      cc: 27
     },
     depth: {
       min: 0,
       max: 127,
       step: 1,
-      label: 'Depth',
-      cc: 29
+      label: 'Trem. Rate',
+      cc: 28
     }
   },
-  delay: {
+  mod: {
     type: {
-      cc: 89
+      cc: 88
     },
     time: {
       min: 0,
@@ -134,13 +196,32 @@ export const params = {
       step: 1,
       label: 'Depth',
       cc: 31
+    }
+  },
+  delay: {
+    type: {
+      cc: 89
+    },
+    time: {
+      min: 0,
+      max: 127,
+      step: 1,
+      label: 'Time',
+      cc: 33
+    },
+    depth: {
+      min: 0,
+      max: 127,
+      step: 1,
+      label: 'Depth',
+      cc: 34
     },
     mix: {
       min: 0,
       max: 127,
       step: 1,
       label: 'Mix',
-      cc: 33
+      cc: 35
     }
   },
   reverb: {
@@ -152,21 +233,21 @@ export const params = {
       max: 127,
       step: 1,
       label: 'Time',
-      cc: 34
+      cc: 36
     },
     depth: {
       min: 0,
       max: 127,
       step: 1,
       label: 'Depth',
-      cc: 35
+      cc: 37
     },
     mix: {
       min: 0,
       max: 127,
       step: 1,
       label: 'Mix',
-      cc: 36
+      cc: 38
     }
   },
   arp: {
@@ -186,26 +267,27 @@ export const params = {
   }
 }
 
-export const types = {
+// Type options
+export const types: TypesStructure = {
   osc: [
     {
       value: 0,
       label: 'Sawtooth'
     },
     {
-      value: 31,
+      value: 1,
       label: 'Triangle'
     },
     {
-      value: 62,
+      value: 2,
       label: 'Square'
     },
     {
-      value: 93,
+      value: 3,
       label: 'VPN'
     },
     {
-      value: 127,
+      value: 4,
       label: 'USER01'
     }
   ],
@@ -215,27 +297,27 @@ export const types = {
       label: 'LowPass 2p'
     },
     {
-      value: 21,
+      value: 1,
       label: 'LowPass 4p'
     },
     {
-      value: 42,
+      value: 2,
       label: 'BandPass 2p'
     },
     {
-      value: 63,
+      value: 3,
       label: 'BandPass 4p'
     },
     {
-      value: 84,
+      value: 4,
       label: 'HightPass 2p'
     },
     {
-      value: 105,
+      value: 5,
       label: 'HightPass 4p'
     },
     {
-      value: 127,
+      value: 6,
       label: 'Off'
     }
   ],
@@ -245,20 +327,28 @@ export const types = {
       label: 'ADSR'
     },
     {
-      value: 31,
+      value: 1,
       label: 'AHR'
     },
     {
-      value: 62,
+      value: 2,
       label: 'AR'
     },
     {
-      value: 93,
-      label: 'AR Loop'
+      value: 3,
+      label: 'AR·Loop'
     },
     {
-      value: 127,
-      label: 'Open'
+      value: 4,
+      label: 'Gate'
+    },
+    {
+      value: 5,
+      label: 'Gate+Decay'
+    },
+    {
+      value: 6,
+      label: 'Off'
     }
   ],
   mod: [
@@ -267,24 +357,24 @@ export const types = {
       label: 'Off'
     },
     {
-      value: 25,
+      value: 1,
       label: 'Chorus'
     },
     {
-      value: 50,
+      value: 2,
       label: 'Ensemble'
     },
     {
-      value: 75,
+      value: 3,
       label: 'Phaser'
     },
     {
-      value: 100,
+      value: 4,
       label: 'Flanger'
     },
     {
-      value: 127,
-      label: 'Random'
+      value: 5,
+      label: 'User'
     }
   ],
   delay: [
@@ -293,24 +383,28 @@ export const types = {
       label: 'Off'
     },
     {
-      value: 25,
+      value: 1,
       label: 'Stereo'
     },
     {
-      value: 50,
+      value: 2,
       label: 'Mono'
     },
     {
-      value: 75,
-      label: 'Ping Pong'
+      value: 3,
+      label: 'PingPong'
     },
     {
-      value: 100,
-      label: 'Hight Pass'
+      value: 4,
+      label: 'HighCut'
     },
     {
-      value: 127,
+      value: 5,
       label: 'Tape'
+    },
+    {
+      value: 6,
+      label: 'User'
     }
   ],
   reverb: [
@@ -319,24 +413,28 @@ export const types = {
       label: 'Off'
     },
     {
-      value: 25,
+      value: 1,
       label: 'Hall'
     },
     {
-      value: 50,
+      value: 2,
       label: 'Plate'
     },
     {
-      value: 75,
-      label: 'Space'
+      value: 3,
+      label: 'Room'
     },
     {
-      value: 100,
+      value: 4,
       label: 'Riser'
     },
     {
-      value: 127,
+      value: 5,
       label: 'Submarine'
+    },
+    {
+      value: 6,
+      label: 'User'
     }
   ],
   arp: [
@@ -345,40 +443,64 @@ export const types = {
       label: 'Up'
     },
     {
-      value: 14,
+      value: 1,
       label: 'Down'
     },
     {
-      value: 28,
-      label: 'Up-Down'
+      value: 2,
+      label: 'UpDown'
     },
     {
-      value: 42,
-      label: 'Down-Up'
+      value: 3,
+      label: 'DownUp'
     },
     {
-      value: 56,
+      value: 4,
+      label: 'UpDown2'
+    },
+    {
+      value: 5,
+      label: 'DownUp2'
+    },
+    {
+      value: 6,
       label: 'Converge'
     },
     {
-      value: 70,
+      value: 7,
       label: 'Diverge'
     },
     {
-      value: 84,
-      label: 'Conv.-Div.'
+      value: 8,
+      label: 'Con/Div'
     },
     {
-      value: 98,
-      label: 'Div.-Conv.'
+      value: 9,
+      label: 'Pinky·Up'
     },
     {
-      value: 112,
+      value: 10,
+      label: 'Pinky·UpDown'
+    },
+    {
+      value: 11,
+      label: 'Thumb·Up'
+    },
+    {
+      value: 12,
+      label: 'Thumb·UpDown'
+    },
+    {
+      value: 13,
       label: 'Random'
     },
     {
-      value: 127,
-      label: 'Stchastic'
+      value: 14,
+      label: 'Stochastic'
+    },
+    {
+      value: 15,
+      label: 'Off'
     }
   ],
   scale: [
@@ -387,29 +509,46 @@ export const types = {
       label: 'Octave'
     },
     {
-      value: 25,
-      label: 'Major Triad'
+      value: 1,
+      label: 'Major'
     },
     {
-      value: 50,
-      label: 'Major Suspended'
+      value: 2,
+      label: 'Minor'
     },
     {
-      value: 75,
-      label: 'Majaor Augumented'
+      value: 3,
+      label: 'Dorian'
     },
     {
-      value: 100,
-      label: 'Minor Triad'
+      value: 4,
+      label: 'Lydian'
     },
     {
-      value: 127,
-      label: 'Minor Diminished'
+      value: 5,
+      label: 'Mixolydian'
+    },
+    {
+      value: 6,
+      label: 'Spanish·8·Tone'
+    },
+    {
+      value: 7,
+      label: 'Blues'
+    },
+    {
+      value: 8,
+      label: 'Arabian'
+    },
+    {
+      value: 9,
+      label: 'Chromatic'
     }
   ]
 }
 
-export const midiChannelOptions = [
+// MIDI Channel options
+export const midiChannelOptions: MidiChannelOption[] = [
   'all',
   '1',
   '2',
@@ -427,4 +566,7 @@ export const midiChannelOptions = [
   '14',
   '15',
   '16'
-]
+].map((value, index) => ({
+  value,
+  label: index === 0 ? 'All' : value
+}))

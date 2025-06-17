@@ -1,65 +1,46 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
+import type { KeyboardProps, KeyboardEmits } from '@/types/components'
 
-const props = defineProps({
-  // Hold trigger switch
-  holdSwitch: {
-    type: Boolean,
-    required: true,
-    default: false
-  },
-  // Arppegio trigger switch
-  arpSwitch: {
-    type: Boolean,
-    required: true,
-    default: false
-  },
-  // Octave up and down
-  octave: {
-    type: Number,
-    required: true,
-    default: 0
-  }
+const props = withDefaults(defineProps<KeyboardProps>(), {
+  holdSwitch: false,
+  arpSwitch: false,
+  octave: 0
 })
 
-const emit = defineEmits([
-  'update:holdSwitch',
-  'update:arpSwitch',
-  'handleOctave',
-  'noteOn',
-  'noteOff'
-])
+const emit = defineEmits<KeyboardEmits>()
 
 const _holdSwitch = computed({
-  get() {
+  get(): boolean {
     return props.holdSwitch
   },
-  set(bool) {
+  set(bool: boolean): void {
     if (props.holdSwitch !== bool) {
       emit('update:holdSwitch', bool)
     }
   }
 })
 
-const handleOctaveUp = () => {
+const handleOctaveUp = (): void => {
   if (props.octave < 5) {
     emit('handleOctave', props.octave + 1)
   }
 }
 
-const handleOctaveDown = () => {
+const handleOctaveDown = (): void => {
   if (props.octave > -5) {
     emit('handleOctave', props.octave - 1)
   }
 }
 
-const handleNoteOn = event => {
+const handleNoteOn = (event: MouseEvent | TouchEvent): void => {
+  const target = event.target as HTMLElement
   const coefficient = props.octave * 12
-  const noteNum = Number(event.target.dataset.note) + coefficient
+  const noteNum = Number(target.dataset.note) + coefficient
   emit('noteOn', noteNum)
 }
 
-const handleNoteOff = () => {
+const handleNoteOff = (): void => {
   emit('noteOff')
 }
 </script>

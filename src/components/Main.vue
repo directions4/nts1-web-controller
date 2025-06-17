@@ -1,26 +1,27 @@
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { WebMidi } from 'webmidi'
+import { WebMidi, type Output } from 'webmidi'
 import _ from 'lodash'
 import Knob from './Knob.vue'
 import StoreButton from './StoreButton.vue'
 import Keyboard from './Keyboard.vue'
 import { params, types, midiChannelOptions } from '@/lib/params'
 import { storageAvailable } from '@/lib/utils'
+import type { PatchData } from '@/types/components'
 
 // Reactive state
-const holdSwitch = ref(true) // Keyboard hold toggle switch
-const arpSwitch = ref(false) // Arppegiator toggle switch
-const octave = ref(0) // Octave value
-const tab = ref('knobs') // Global tab
-const outputs = ref([]) // MIDI devices
-const outputId = ref(null)
-const inputs = ref([])
-const outputMidiChannel = ref('all') // Selected MIDI channel
-const patches = ref([]) // 10 Patch data
+const holdSwitch = ref<boolean>(true) // Keyboard hold toggle switch
+const arpSwitch = ref<boolean>(false) // Arppegiator toggle switch
+const octave = ref<number>(0) // Octave value
+const tab = ref<string>('knobs') // Global tab
+const outputs = ref<Output[]>([]) // MIDI devices
+const outputId = ref<string | null>(null)
+const inputs = ref<Output[]>([])
+const outputMidiChannel = ref<string>('all') // Selected MIDI channel
+const patches = ref<PatchData[]>([]) // 10 Patch data
 
 // Temporary patch data
-const tmpPatch = reactive({
+const tmpPatch = reactive<PatchData>({
   osc: {
     type: { value: 0, label: 'Sawtooth' },
     shape: 1,
@@ -67,42 +68,46 @@ const tmpPatch = reactive({
 })
 
 // Methods
-const handleOctave = val => {
+const handleOctave = (val: number): void => {
   octave.value = val
 }
 
-const noteOn = noteNum => {
+const noteOn = (noteNum: number): void => {
   const outputDevice = WebMidi.getOutputById(outputId.value)
-  outputDevice.playNote(noteNum, outputMidiChannel.value)
+  if (outputDevice) {
+    outputDevice.playNote(noteNum, outputMidiChannel.value)
+  }
 }
 
-const noteOff = () => {
+const noteOff = (): void => {
   const outputDevice = WebMidi.getOutputById(outputId.value)
-  if (!holdSwitch.value) {
+  if (outputDevice && !holdSwitch.value) {
     for (let i = 0; i < 128; i++) {
       outputDevice.stopNote(i, outputMidiChannel.value)
     }
   }
 }
 
-const handleControlChange = (cc, val) => {
-  // console.log("cc:", cc)
-  // console.log("value:", val)
+const handleControlChange = (cc: number, val: number): void => {
+  console.log("cc:", cc)
+  console.log("value:", val)
   const outputDevice = WebMidi.getOutputById(outputId.value)
-  outputDevice.sendControlChange(cc, val, outputMidiChannel.value)
+  if (outputDevice) {
+    outputDevice.sendControlChange(cc, val, outputMidiChannel.value)
+  }
 }
 
-const initStorage = () => {
+const initStorage = (): void => {
   const _tmpPatch = tmpPatch
   patches.value[0] = _tmpPatch
-  if (storageAvailable) {
+  if (storageAvailable()) {
     if (localStorage.patches == undefined) {
       localStorage.setItem('patches', JSON.stringify(patches.value))
     }
   }
 }
 
-const handleSavePatch = n => {
+const handleSavePatch = (n: number): void => {
   if (storageAvailable()) {
     const _tmpPatch = tmpPatch
     patches.value[n] = _tmpPatch
@@ -110,28 +115,31 @@ const handleSavePatch = n => {
   }
 }
 
-const handleLoadPatch = n => {
+const handleLoadPatch = (n: number): void => {
   if (storageAvailable()) {
-    const stores = JSON.parse(localStorage.getItem('patches'))
-    if (stores[n]) {
-      Object.assign(tmpPatch, stores[n])
-      sendPatch()
-    } else {
-      console.log('Empty!')
+    const patchesData = localStorage.getItem('patches')
+    if (patchesData) {
+      const stores = JSON.parse(patchesData) as PatchData[]
+      if (stores[n]) {
+        Object.assign(tmpPatch, stores[n])
+        sendPatch()
+      } else {
+        console.log('Empty!')
+      }
     }
   }
 }
 
-const sendPatch = () => {
+const sendPatch = (): void => {
   _.forEach(tmpPatch, (val, key) => {
-    let parentKey = key
+    const parentKey = key as keyof PatchData
     if (key !== 'arp') {
-      _.forEach(tmpPatch[key], (val, key) => {
-        let cc = params[parentKey][key]['cc']
-        if (key === 'type') {
-          handleControlChange(cc, val.value)
+      _.forEach(tmpPatch[parentKey], (val, subKey) => {
+        const cc = params[parentKey][subKey as keyof (typeof params)[typeof parentKey]]['cc']
+        if (subKey === 'type') {
+          handleControlChange(cc, (val as { value: number }).value)
         } else {
-          handleControlChange(cc, val)
+          handleControlChange(cc, val as number)
         }
       })
     } else {
@@ -145,7 +153,7 @@ const sendPatch = () => {
 // Lifecycle
 onMounted(() => {
   // init MIDI
-  WebMidi.enable(err => {
+  WebMidi.enable((err?: Error) => {
     if (err) {
       console.error('MIDI could not be enabled.', err)
     } else {

@@ -6,13 +6,6 @@
   </q-layout>
 </template>
 
-<script>
+<script setup lang="ts">
 import MainController from './components/Main.vue'
-
-export default {
-  name: 'App',
-  components: {
-    MainController
-  }
-}
 </script>

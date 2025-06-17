@@ -1,26 +1,18 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
+import type { KnobProps, KnobEmits } from '@/types/components'
 
-const props = defineProps({
-  params: {
-    type: Object,
-    required: true,
-    default: () => ({})
-  },
-  modelValue: {
-    type: Number,
-    required: true,
-    default: 0
-  }
+const props = withDefaults(defineProps<KnobProps>(), {
+  modelValue: 0
 })
 
-const emit = defineEmits(['update:modelValue', 'handleControlChange'])
+const emit = defineEmits<KnobEmits>()
 
 const _value = computed({
-  get() {
+  get(): number {
     return props.modelValue
   },
-  set(num) {
+  set(num: number): void {
     if (props.modelValue !== num) {
       emit('update:modelValue', num)
       emit('handleControlChange', props.params.cc, num)
