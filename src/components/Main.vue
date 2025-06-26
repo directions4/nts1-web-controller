@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { WebMidi, type Output } from 'webmidi'
 import _ from 'lodash'
 import Knob from './Knob.vue'
@@ -19,6 +19,7 @@ const outputId = ref<string | null>(null)
 const inputs = ref<Output[]>([])
 const outputMidiChannel = ref<string>('all') // Selected MIDI channel
 const patches = ref<PatchData[]>([]) // 10 Patch data
+const heldNotes = ref<number[]>([]) // Currently held notes
 
 // Temporary patch data
 const tmpPatch = reactive<PatchData>({
@@ -76,21 +77,41 @@ const noteOn = (noteNum: number): void => {
   const outputDevice = WebMidi.getOutputById(outputId.value)
   if (outputDevice) {
     outputDevice.playNote(noteNum, outputMidiChannel.value)
-  }
-}
-
-const noteOff = (): void => {
-  const outputDevice = WebMidi.getOutputById(outputId.value)
-  if (outputDevice && !holdSwitch.value) {
-    for (let i = 0; i < 128; i++) {
-      outputDevice.stopNote(i, outputMidiChannel.value)
+    if (holdSwitch.value && !heldNotes.value.includes(noteNum)) {
+      heldNotes.value.push(noteNum)
     }
   }
 }
 
+const noteOff = (noteNum?: number): void => {
+  const outputDevice = WebMidi.getOutputById(outputId.value)
+  if (outputDevice) {
+    if (holdSwitch.value) {
+      return
+    }
+    if (noteNum !== undefined) {
+      outputDevice.stopNote(noteNum, outputMidiChannel.value)
+    } else {
+      for (let i = 0; i < 128; i++) {
+        outputDevice.stopNote(i, outputMidiChannel.value)
+      }
+    }
+  }
+}
+
+const clearHeldNotes = (): void => {
+  const outputDevice = WebMidi.getOutputById(outputId.value)
+  if (outputDevice) {
+    heldNotes.value.forEach(noteNum => {
+      outputDevice.stopNote(noteNum, outputMidiChannel.value)
+    })
+    heldNotes.value = []
+  }
+}
+
 const handleControlChange = (cc: number, val: number): void => {
-  console.log("cc:", cc)
-  console.log("value:", val)
+  console.log('cc:', cc)
+  console.log('value:', val)
   const outputDevice = WebMidi.getOutputById(outputId.value)
   if (outputDevice) {
     outputDevice.sendControlChange(cc, val, outputMidiChannel.value)
@@ -98,19 +119,24 @@ const handleControlChange = (cc: number, val: number): void => {
 }
 
 const initStorage = (): void => {
-  const _tmpPatch = tmpPatch
-  patches.value[0] = _tmpPatch
   if (storageAvailable()) {
-    if (localStorage.patches == undefined) {
+    const existingPatches = localStorage.getItem('patches')
+    if (existingPatches) {
+      patches.value = JSON.parse(existingPatches) as PatchData[]
+    } else {
+      // Initialize with empty patches array
+      patches.value = Array(8).fill(null).map(() => ({ ...tmpPatch }))
       localStorage.setItem('patches', JSON.stringify(patches.value))
     }
+  } else {
+    // Initialize with empty patches array if localStorage not available
+    patches.value = Array(8).fill(null).map(() => ({ ...tmpPatch }))
   }
 }
 
 const handleSavePatch = (n: number): void => {
   if (storageAvailable()) {
-    const _tmpPatch = tmpPatch
-    patches.value[n] = _tmpPatch
+    patches.value[n] = JSON.parse(JSON.stringify(tmpPatch))
     localStorage.setItem('patches', JSON.stringify(patches.value))
   }
 }
@@ -157,8 +183,16 @@ const handlePanic = (): void => {
       outputDevice.stopNote(i, outputMidiChannel.value)
     }
     outputDevice.sendControlChange(123, 0, outputMidiChannel.value)
+    heldNotes.value = []
   }
 }
+
+// Watch for hold switch changes
+watch(holdSwitch, newVal => {
+  if (!newVal) {
+    clearHeldNotes()
+  }
+})
 
 // Lifecycle
 onMounted(() => {
@@ -183,13 +217,7 @@ onMounted(() => {
     <q-toolbar class="bg-grey-9 text-white shadow-2">
       <span class="app-name">Nu:Tekt NTS-1 Web Controller</span>
       <q-space />
-      <q-btn
-        @click="handlePanic"
-        color="red"
-        class="panic-btn q-mr-md"
-        unelevated
-        size="md"
-      >
+      <q-btn @click="handlePanic" color="red" class="panic-btn q-mr-md" unelevated size="md">
         Panic!
       </q-btn>
       <q-tabs v-model="tab" align="justify" class="tabs" indicator-color="white">
