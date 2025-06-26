@@ -150,6 +150,16 @@ const sendPatch = (): void => {
   })
 }
 
+const handlePanic = (): void => {
+  const outputDevice = WebMidi.getOutputById(outputId.value)
+  if (outputDevice) {
+    for (let i = 0; i < 128; i++) {
+      outputDevice.stopNote(i, outputMidiChannel.value)
+    }
+    outputDevice.sendControlChange(123, 0, outputMidiChannel.value)
+  }
+}
+
 // Lifecycle
 onMounted(() => {
   // init MIDI
@@ -173,6 +183,15 @@ onMounted(() => {
     <q-toolbar class="bg-grey-9 text-white shadow-2">
       <span class="app-name">Nu:Tekt NTS-1 Web Controller</span>
       <q-space />
+      <q-btn
+        @click="handlePanic"
+        color="red"
+        class="panic-btn q-mr-md"
+        unelevated
+        size="md"
+      >
+        Panic!
+      </q-btn>
       <q-tabs v-model="tab" align="justify" class="tabs" indicator-color="white">
         <q-tab name="knobs" icon="fiber_smart_record" label="Knobs" />
         <q-tab name="keyboards" icon="straighten" label="Keyboard" />
