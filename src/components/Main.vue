@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from 'vue'
-import { WebMidi, type Output } from 'webmidi'
+import { WebMidi, type Output, type Input } from 'webmidi'
 import _ from 'lodash'
 import Knob from './Knob.vue'
 import StoreButton from './StoreButton.vue'
@@ -16,7 +16,7 @@ const octave = ref<number>(0) // Octave value
 const tab = ref<string>('knobs') // Global tab
 const outputs = ref<Output[]>([]) // MIDI devices
 const outputId = ref<string | null>(null)
-const inputs = ref<Output[]>([])
+const inputs = ref<Input[]>([])
 const outputMidiChannel = ref<string>('all') // Selected MIDI channel
 const patches = ref<PatchData[]>([]) // 10 Patch data
 const heldNotes = ref<number[]>([]) // Currently held notes
@@ -74,9 +74,11 @@ const handleOctave = (val: number): void => {
 }
 
 const noteOn = (noteNum: number): void => {
+  if (!outputId.value) return
   const outputDevice = WebMidi.getOutputById(outputId.value)
   if (outputDevice) {
-    outputDevice.playNote(noteNum, outputMidiChannel.value)
+    const channels = outputMidiChannel.value === 'all' ? undefined : parseInt(outputMidiChannel.value) || 1
+    outputDevice.playNote(noteNum, { channels })
     if (holdSwitch.value && !heldNotes.value.includes(noteNum)) {
       heldNotes.value.push(noteNum)
     }
@@ -84,26 +86,30 @@ const noteOn = (noteNum: number): void => {
 }
 
 const noteOff = (noteNum?: number): void => {
+  if (!outputId.value) return
   const outputDevice = WebMidi.getOutputById(outputId.value)
   if (outputDevice) {
     if (holdSwitch.value) {
       return
     }
+    const channels = outputMidiChannel.value === 'all' ? undefined : parseInt(outputMidiChannel.value) || 1
     if (noteNum !== undefined) {
-      outputDevice.stopNote(noteNum, outputMidiChannel.value)
+      outputDevice.stopNote(noteNum, { channels })
     } else {
       for (let i = 0; i < 128; i++) {
-        outputDevice.stopNote(i, outputMidiChannel.value)
+        outputDevice.stopNote(i, { channels })
       }
     }
   }
 }
 
 const clearHeldNotes = (): void => {
+  if (!outputId.value) return
   const outputDevice = WebMidi.getOutputById(outputId.value)
   if (outputDevice) {
+    const channels = outputMidiChannel.value === 'all' ? undefined : parseInt(outputMidiChannel.value) || 1
     heldNotes.value.forEach(noteNum => {
-      outputDevice.stopNote(noteNum, outputMidiChannel.value)
+      outputDevice.stopNote(noteNum, { channels })
     })
     heldNotes.value = []
   }
@@ -112,9 +118,11 @@ const clearHeldNotes = (): void => {
 const handleControlChange = (cc: number, val: number): void => {
   console.log('cc:', cc)
   console.log('value:', val)
+  if (!outputId.value) return
   const outputDevice = WebMidi.getOutputById(outputId.value)
   if (outputDevice) {
-    outputDevice.sendControlChange(cc, val, outputMidiChannel.value)
+    const channels = outputMidiChannel.value === 'all' ? undefined : parseInt(outputMidiChannel.value) || 1
+    outputDevice.sendControlChange(cc, val, { channels })
   }
 }
 
@@ -157,10 +165,10 @@ const handleLoadPatch = (n: number): void => {
 }
 
 const sendPatch = (): void => {
-  _.forEach(tmpPatch, (val, key) => {
+  _.forEach(tmpPatch, (_val: any, key: string) => {
     const parentKey = key as keyof PatchData
     if (key !== 'arp') {
-      _.forEach(tmpPatch[parentKey], (val, subKey) => {
+      _.forEach(tmpPatch[parentKey], (val: any, subKey: string) => {
         const cc = params[parentKey][subKey as keyof (typeof params)[typeof parentKey]]['cc']
         if (subKey === 'type') {
           handleControlChange(cc, (val as { value: number }).value)
@@ -177,12 +185,14 @@ const sendPatch = (): void => {
 }
 
 const handlePanic = (): void => {
+  if (!outputId.value) return
   const outputDevice = WebMidi.getOutputById(outputId.value)
   if (outputDevice) {
+    const channels = outputMidiChannel.value === 'all' ? undefined : parseInt(outputMidiChannel.value) || 1
     for (let i = 0; i < 128; i++) {
-      outputDevice.stopNote(i, outputMidiChannel.value)
+      outputDevice.stopNote(i, { channels })
     }
-    outputDevice.sendControlChange(123, 0, outputMidiChannel.value)
+    outputDevice.sendControlChange(123, 0, { channels })
     heldNotes.value = []
   }
 }
@@ -197,14 +207,16 @@ watch(holdSwitch, newVal => {
 // Lifecycle
 onMounted(() => {
   // init MIDI
-  WebMidi.enable((err?: Error) => {
-    if (err) {
-      console.error('MIDI could not be enabled.', err)
-    } else {
-      console.info('WebMIDI enabled!')
-      console.dir(WebMidi.outputs)
-      outputs.value = WebMidi.outputs
-      inputs.value = WebMidi.inputs
+  WebMidi.enable({
+    callback: (err?: Error) => {
+      if (err) {
+        console.error('MIDI could not be enabled.', err)
+      } else {
+        console.info('WebMIDI enabled!')
+        console.dir(WebMidi.outputs)
+        outputs.value = WebMidi.outputs
+        inputs.value = WebMidi.inputs
+      }
     }
   })
   // init local storage
@@ -230,7 +242,7 @@ onMounted(() => {
     <q-tab-panels v-model="tab" animated>
       <q-tab-panel name="knobs">
         <div class="row" style="margin-bottom: 10px">
-          <span v-for="(value, index) in 8" :key="index">
+          <span v-for="(_value, index) in 8" :key="index">
             <store-button :number="index" @load="handleLoadPatch" @save="handleSavePatch" />
           </span>
         </div>
