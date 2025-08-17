@@ -26,7 +26,7 @@ module.exports = configure(function (ctx) {
 
       vueRouterMode: 'hash',
       publicPath: ctx.prod ? '/nts1-web-controller/' : '/',
-      
+
       extendViteConf (viteConf, { isServer, isClient }) {
         // Configure Vite here
       },
