@@ -235,4 +235,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# AI
+.claude/
+
 # End of https://www.gitignore.io/api/windows,osx,linux,vim,emacs,node,vscode
