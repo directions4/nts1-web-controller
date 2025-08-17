@@ -44,9 +44,7 @@ describe('Keyboard.vue', () => {
       props: { ...defaultProps, octave: 2 }
     })
 
-    const upButton = wrapper.findAll('button').find(btn => 
-      btn.text().includes('Up')
-    )
+    const upButton = wrapper.findAll('button').find(btn => btn.text().includes('Up'))
     await upButton?.trigger('click')
 
     expect(wrapper.emitted()['handleOctave']).toBeTruthy()
@@ -59,9 +57,7 @@ describe('Keyboard.vue', () => {
       props: { ...defaultProps, octave: 2 }
     })
 
-    const downButton = wrapper.findAll('button').find(btn => 
-      btn.text().includes('Down')
-    )
+    const downButton = wrapper.findAll('button').find(btn => btn.text().includes('Down'))
     await downButton?.trigger('click')
 
     expect(wrapper.emitted()['handleOctave']).toBeTruthy()
@@ -74,9 +70,7 @@ describe('Keyboard.vue', () => {
       props: { ...defaultProps, octave: 5 }
     })
 
-    const upButton = wrapper.findAll('button').find(btn => 
-      btn.text().includes('Up')
-    )
+    const upButton = wrapper.findAll('button').find(btn => btn.text().includes('Up'))
     await upButton?.trigger('click')
 
     // When octave = 5, it's at upper limit so should not emit
@@ -89,9 +83,7 @@ describe('Keyboard.vue', () => {
       props: { ...defaultProps, octave: -5 }
     })
 
-    const downButton = wrapper.findAll('button').find(btn => 
-      btn.text().includes('Down')
-    )
+    const downButton = wrapper.findAll('button').find(btn => btn.text().includes('Down'))
     await downButton?.trigger('click')
 
     // When octave = -5, it's at lower limit so should not emit
@@ -148,7 +140,7 @@ describe('Keyboard.vue', () => {
     })
 
     const firstKey = wrapper.find('[data-note="60"]')
-    
+
     // Simulate mousedown event
     await firstKey.trigger('mousedown')
 
@@ -191,8 +183,8 @@ describe('Keyboard.vue', () => {
   it('should calculate octave correctly', async () => {
     const testCases = [
       { octave: -2, expectedNote: 36 }, // 60 + (-2 * 12) = 36
-      { octave: 0, expectedNote: 60 },  // 60 + (0 * 12) = 60
-      { octave: 2, expectedNote: 84 }   // 60 + (2 * 12) = 84
+      { octave: 0, expectedNote: 60 }, // 60 + (0 * 12) = 60
+      { octave: 2, expectedNote: 84 } // 60 + (2 * 12) = 84
     ]
 
     for (const testCase of testCases) {

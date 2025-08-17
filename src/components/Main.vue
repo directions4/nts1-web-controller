@@ -21,6 +21,13 @@ const outputMidiChannel = ref<string>('all') // Selected MIDI channel
 const patches = ref<PatchData[]>([]) // 10 Patch data
 const heldNotes = ref<number[]>([]) // Currently held notes
 
+// Error handling state
+const midiEnabled = ref<boolean>(false) // WebMIDI API availability status
+const midiError = ref<string | null>(null) // Current MIDI error message
+const deviceConnectionStatus = ref<string>('disconnected') // Device connection status
+const showErrorNotification = ref<boolean>(false) // Error notification visibility
+const errorMessage = ref<string>('') // Current error message for user
+
 // Temporary patch data
 const tmpPatch = reactive<PatchData>({
   osc: {
@@ -68,31 +75,124 @@ const tmpPatch = reactive<PatchData>({
   }
 })
 
+// Error handling methods
+const showError = (message: string): void => {
+  errorMessage.value = message
+  showErrorNotification.value = true
+  console.error('NTS-1 Controller Error:', message)
+}
+
+const hideError = (): void => {
+  showErrorNotification.value = false
+  errorMessage.value = ''
+}
+
+const checkWebMidiSupport = (): boolean => {
+  if (!navigator.requestMIDIAccess) {
+    showError('Web MIDI API is not supported in this browser. Please use Chrome, Firefox, or Edge.')
+    return false
+  }
+  return true
+}
+
+const handleMidiError = (err: Error): void => {
+  midiEnabled.value = false
+  midiError.value = err.message
+  let userMessage = 'MIDI initialization failed. '
+
+  if (err.message.includes('NotAllowedError') || err.message.includes('permission')) {
+    userMessage += 'Please allow MIDI access in your browser settings and refresh the page.'
+  } else if (err.message.includes('NotSupportedError')) {
+    userMessage += 'Web MIDI is not supported in this browser.'
+  } else {
+    userMessage += 'Please check your MIDI device connection and refresh the page.'
+  }
+
+  showError(userMessage)
+}
+
+const updateDeviceConnectionStatus = (): void => {
+  if (!midiEnabled.value) {
+    deviceConnectionStatus.value = 'midi_unavailable'
+    return
+  }
+
+  if (outputs.value.length === 0) {
+    deviceConnectionStatus.value = 'no_devices'
+    showError('No MIDI output devices found. Please connect your NTS-1 and refresh the page.')
+  } else if (!outputId.value) {
+    deviceConnectionStatus.value = 'device_not_selected'
+  } else {
+    const selectedDevice = WebMidi.getOutputById(outputId.value)
+    if (selectedDevice && selectedDevice.state === 'connected') {
+      deviceConnectionStatus.value = 'connected'
+      hideError() // Clear any previous device errors
+    } else {
+      deviceConnectionStatus.value = 'disconnected'
+      showError('Selected MIDI device is disconnected. Please check your connection.')
+    }
+  }
+}
+
+// Safe MIDI operations with error handling
+const safeMidiOperation = (operation: () => void, errorContext: string): void => {
+  try {
+    if (!midiEnabled.value) {
+      showError('MIDI is not available. Please refresh the page and allow MIDI access.')
+      return
+    }
+    operation()
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error'
+    showError(`${errorContext}: ${errorMsg}`)
+  }
+}
+
 // Methods
 const handleOctave = (val: number): void => {
   octave.value = val
 }
 
 const noteOn = (noteNum: number): void => {
-  if (!outputId.value) return
-  const outputDevice = WebMidi.getOutputById(outputId.value)
-  if (outputDevice) {
-    const channels = outputMidiChannel.value === 'all' ? undefined : parseInt(outputMidiChannel.value) || 1
+  safeMidiOperation(() => {
+    if (!outputId.value) {
+      showError('No MIDI device selected. Please select a device first.')
+      return
+    }
+    const outputDevice = WebMidi.getOutputById(outputId.value)
+    if (!outputDevice) {
+      showError('Selected MIDI device is not available.')
+      return
+    }
+    if (outputDevice.state !== 'connected') {
+      showError('MIDI device is disconnected. Please check your connection.')
+      return
+    }
+
+    const channels =
+      outputMidiChannel.value === 'all' ? undefined : parseInt(outputMidiChannel.value) || 1
     outputDevice.playNote(noteNum, { channels })
     if (holdSwitch.value && !heldNotes.value.includes(noteNum)) {
       heldNotes.value.push(noteNum)
     }
-  }
+  }, 'Note On')
 }
 
 const noteOff = (noteNum?: number): void => {
-  if (!outputId.value) return
-  const outputDevice = WebMidi.getOutputById(outputId.value)
-  if (outputDevice) {
+  safeMidiOperation(() => {
+    if (!outputId.value) return
+    const outputDevice = WebMidi.getOutputById(outputId.value)
+    if (!outputDevice) return
+    if (outputDevice.state !== 'connected') {
+      showError('MIDI device is disconnected. Please check your connection.')
+      return
+    }
+
     if (holdSwitch.value) {
       return
     }
-    const channels = outputMidiChannel.value === 'all' ? undefined : parseInt(outputMidiChannel.value) || 1
+    const channels =
+      outputMidiChannel.value === 'all' ? undefined : parseInt(outputMidiChannel.value) || 1
     if (noteNum !== undefined) {
       outputDevice.stopNote(noteNum, { channels })
     } else {
@@ -100,68 +200,144 @@ const noteOff = (noteNum?: number): void => {
         outputDevice.stopNote(i, { channels })
       }
     }
-  }
+  }, 'Note Off')
 }
 
 const clearHeldNotes = (): void => {
-  if (!outputId.value) return
-  const outputDevice = WebMidi.getOutputById(outputId.value)
-  if (outputDevice) {
-    const channels = outputMidiChannel.value === 'all' ? undefined : parseInt(outputMidiChannel.value) || 1
+  safeMidiOperation(() => {
+    if (!outputId.value) return
+    const outputDevice = WebMidi.getOutputById(outputId.value)
+    if (!outputDevice) return
+    if (outputDevice.state !== 'connected') {
+      showError('MIDI device is disconnected. Please check your connection.')
+      return
+    }
+
+    const channels =
+      outputMidiChannel.value === 'all' ? undefined : parseInt(outputMidiChannel.value) || 1
     heldNotes.value.forEach(noteNum => {
       outputDevice.stopNote(noteNum, { channels })
     })
     heldNotes.value = []
-  }
+  }, 'Clear Held Notes')
 }
 
 const handleControlChange = (cc: number, val: number): void => {
   console.log('cc:', cc)
   console.log('value:', val)
-  if (!outputId.value) return
-  const outputDevice = WebMidi.getOutputById(outputId.value)
-  if (outputDevice) {
-    const channels = outputMidiChannel.value === 'all' ? undefined : parseInt(outputMidiChannel.value) || 1
+  safeMidiOperation(() => {
+    if (!outputId.value) {
+      showError('No MIDI device selected. Please select a device first.')
+      return
+    }
+    const outputDevice = WebMidi.getOutputById(outputId.value)
+    if (!outputDevice) {
+      showError('Selected MIDI device is not available.')
+      return
+    }
+    if (outputDevice.state !== 'connected') {
+      showError('MIDI device is disconnected. Please check your connection.')
+      return
+    }
+
+    const channels =
+      outputMidiChannel.value === 'all' ? undefined : parseInt(outputMidiChannel.value) || 1
     outputDevice.sendControlChange(cc, val, { channels })
+  }, 'Control Change')
+}
+
+// Safe localStorage operations with error handling
+const safeLocalStorageOperation = (operation: () => void, errorContext: string): void => {
+  try {
+    if (!storageAvailable()) {
+      showError('Local storage is not available. Patch data cannot be saved.')
+      return
+    }
+    operation()
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown storage error'
+    showError(`${errorContext}: ${errorMsg}`)
+    console.error('LocalStorage error:', error)
   }
 }
 
 const initStorage = (): void => {
-  if (storageAvailable()) {
+  safeLocalStorageOperation(() => {
     const existingPatches = localStorage.getItem('patches')
     if (existingPatches) {
-      patches.value = JSON.parse(existingPatches) as PatchData[]
-    } else {
-      // Initialize with empty patches array
-      patches.value = Array(8).fill(null).map(() => ({ ...tmpPatch }))
-      localStorage.setItem('patches', JSON.stringify(patches.value))
+      try {
+        const parsedPatches = JSON.parse(existingPatches) as PatchData[]
+        // Validate parsed data structure
+        if (Array.isArray(parsedPatches) && parsedPatches.length > 0) {
+          patches.value = parsedPatches
+          return
+        }
+      } catch (parseError) {
+        console.warn('Invalid patch data in localStorage, reinitializing:', parseError)
+        localStorage.removeItem('patches')
+      }
     }
-  } else {
-    // Initialize with empty patches array if localStorage not available
-    patches.value = Array(8).fill(null).map(() => ({ ...tmpPatch }))
+
+    // Initialize with empty patches array
+    patches.value = Array(8)
+      .fill(null)
+      .map(() => ({ ...tmpPatch }))
+    localStorage.setItem('patches', JSON.stringify(patches.value))
+  }, 'Storage initialization failed')
+
+  // Fallback: always ensure patches array exists
+  if (!patches.value || patches.value.length === 0) {
+    patches.value = Array(8)
+      .fill(null)
+      .map(() => ({ ...tmpPatch }))
   }
 }
 
 const handleSavePatch = (n: number): void => {
-  if (storageAvailable()) {
-    patches.value[n] = JSON.parse(JSON.stringify(tmpPatch))
-    localStorage.setItem('patches', JSON.stringify(patches.value))
+  if (n < 0 || n >= patches.value.length) {
+    showError(`Invalid patch slot: ${n}. Please select a valid slot.`)
+    return
   }
+
+  safeLocalStorageOperation(
+    () => {
+      patches.value[n] = JSON.parse(JSON.stringify(tmpPatch))
+      localStorage.setItem('patches', JSON.stringify(patches.value))
+      console.log(`Patch saved to slot ${n + 1}`)
+    },
+    `Failed to save patch to slot ${n + 1}`
+  )
 }
 
 const handleLoadPatch = (n: number): void => {
-  if (storageAvailable()) {
-    const patchesData = localStorage.getItem('patches')
-    if (patchesData) {
-      const stores = JSON.parse(patchesData) as PatchData[]
-      if (stores[n]) {
-        Object.assign(tmpPatch, stores[n])
-        sendPatch()
-      } else {
-        console.log('Empty!')
-      }
-    }
+  if (n < 0 || n >= patches.value.length) {
+    showError(`Invalid patch slot: ${n}. Please select a valid slot.`)
+    return
   }
+
+  safeLocalStorageOperation(
+    () => {
+      const patchesData = localStorage.getItem('patches')
+      if (patchesData) {
+        try {
+          const stores = JSON.parse(patchesData) as PatchData[]
+          if (stores[n] && typeof stores[n] === 'object') {
+            Object.assign(tmpPatch, stores[n])
+            sendPatch()
+            console.log(`Patch loaded from slot ${n + 1}`)
+          } else {
+            showError(`Patch slot ${n + 1} is empty.`)
+          }
+        } catch (parseError) {
+          showError(`Failed to load patch: Invalid data format.`)
+          console.error('Parse error:', parseError)
+        }
+      } else {
+        showError('No patch data found in storage.')
+      }
+    },
+    `Failed to load patch from slot ${n + 1}`
+  )
 }
 
 const sendPatch = (): void => {
@@ -188,7 +364,8 @@ const handlePanic = (): void => {
   if (!outputId.value) return
   const outputDevice = WebMidi.getOutputById(outputId.value)
   if (outputDevice) {
-    const channels = outputMidiChannel.value === 'all' ? undefined : parseInt(outputMidiChannel.value) || 1
+    const channels =
+      outputMidiChannel.value === 'all' ? undefined : parseInt(outputMidiChannel.value) || 1
     for (let i = 0; i < 128; i++) {
       outputDevice.stopNote(i, { channels })
     }
@@ -204,18 +381,51 @@ watch(holdSwitch, newVal => {
   }
 })
 
+// Device monitoring
+const setupDeviceMonitoring = (): void => {
+  // Listen for device connection/disconnection events
+  WebMidi.addListener('connected', event => {
+    console.log('MIDI device connected:', event.port.name)
+    outputs.value = WebMidi.outputs
+    inputs.value = WebMidi.inputs
+    updateDeviceConnectionStatus()
+  })
+
+  WebMidi.addListener('disconnected', event => {
+    console.log('MIDI device disconnected:', event.port.name)
+    outputs.value = WebMidi.outputs
+    inputs.value = WebMidi.inputs
+    updateDeviceConnectionStatus()
+  })
+}
+
+// Watch for output device selection changes
+watch(outputId, () => {
+  updateDeviceConnectionStatus()
+})
+
 // Lifecycle
 onMounted(() => {
+  // Check WebMIDI support first
+  if (!checkWebMidiSupport()) {
+    return
+  }
+
   // init MIDI
   WebMidi.enable({
     callback: (err?: Error) => {
       if (err) {
         console.error('MIDI could not be enabled.', err)
+        handleMidiError(err)
       } else {
         console.info('WebMIDI enabled!')
         console.dir(WebMidi.outputs)
+        midiEnabled.value = true
+        midiError.value = null
         outputs.value = WebMidi.outputs
         inputs.value = WebMidi.inputs
+        setupDeviceMonitoring()
+        updateDeviceConnectionStatus()
       }
     }
   })
@@ -226,6 +436,34 @@ onMounted(() => {
 
 <template>
   <div>
+    <!-- Error notification -->
+    <q-banner v-if="showErrorNotification" class="bg-negative text-white" rounded inline-actions>
+      <q-icon name="warning" class="q-mr-sm" />
+      {{ errorMessage }}
+      <template v-slot:action>
+        <q-btn flat color="white" label="Dismiss" @click="hideError" />
+      </template>
+    </q-banner>
+
+    <!-- Connection status indicator -->
+    <q-banner
+      v-if="midiEnabled && deviceConnectionStatus !== 'connected'"
+      class="bg-warning text-black"
+      rounded
+      inline-actions
+    >
+      <q-icon name="info" class="q-mr-sm" />
+      <span v-if="deviceConnectionStatus === 'no_devices'">
+        No MIDI devices detected. Please connect your NTS-1 and refresh the page.
+      </span>
+      <span v-else-if="deviceConnectionStatus === 'device_not_selected'">
+        Please select a MIDI output device below.
+      </span>
+      <span v-else-if="deviceConnectionStatus === 'disconnected'">
+        Selected MIDI device is disconnected.
+      </span>
+      <span v-else> MIDI status: {{ deviceConnectionStatus }} </span>
+    </q-banner>
     <q-toolbar class="bg-grey-9 text-white shadow-2">
       <span class="app-name">Nu:Tekt NTS-1 Web Controller</span>
       <q-space />

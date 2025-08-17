@@ -63,7 +63,7 @@ describe('Knob.vue', () => {
     // Verify that emit occurs correctly
     expect(wrapper.emitted()['update:modelValue']).toBeTruthy()
     expect(wrapper.emitted()['update:modelValue'][0]).toEqual([100])
-    
+
     expect(wrapper.emitted()['handleControlChange']).toBeTruthy()
     expect(wrapper.emitted()['handleControlChange'][0]).toEqual([74, 100])
   })
@@ -118,10 +118,10 @@ describe('Knob.vue', () => {
     })
 
     const vm = wrapper.vm as any
-    
+
     // Test getter
     expect(vm._value).toBe(64)
-    
+
     // Test setter
     vm._value = 100
     expect(wrapper.emitted()['update:modelValue']).toBeTruthy()
