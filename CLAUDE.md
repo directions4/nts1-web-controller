@@ -19,6 +19,7 @@ NTS-1 Web Controller is a Vue.js application that provides browser-based control
 ## Architecture
 
 ### Core Technologies
+
 - **Vue 3** with Composition API and `<script setup>` syntax
 - **Quasar Framework** for UI components and styling
 - **WebMIDI.js** for MIDI communication with NTS-1 hardware
@@ -26,6 +27,7 @@ NTS-1 Web Controller is a Vue.js application that provides browser-based control
 - **Vite** as build tool
 
 ### Key Components Structure
+
 - `src/App.vue` - Root component with Quasar layout
 - `src/components/Main.vue` - Primary controller interface with all synthesizer parameters
 - `src/components/Knob.vue` - Reusable knob control component
@@ -33,6 +35,7 @@ NTS-1 Web Controller is a Vue.js application that provides browser-based control
 - `src/components/StoreButton.vue` - Patch save/load buttons
 
 ### State Management
+
 - Uses Vue 3 Composition API with reactive state
 - No external state management library (Vuex/Pinia)
 - Patch data stored in browser LocalStorage
@@ -43,16 +46,19 @@ NTS-1 Web Controller is a Vue.js application that provides browser-based control
 NTS-1 MIDI Implementation details is [here](https://cdn.korg.com/jp/support/download/files/fc90397a1fbf692b1ba2f22c4079985a.pdf).
 
 ### MIDI Parameter Mapping
+
 - `src/lib/params.ts` contains all NTS-1 MIDI CC mappings
 - Parameters organized by synthesizer sections: OSC, Filter, EG, Modulation, Delay, Reverb, Arpeggiator
 - Each parameter has min/max values, step size, display label, and MIDI CC number
 
 ### Type Definitions
+
 - `src/types/components.ts` defines PatchData interface structure
 - `src/lib/params.ts` exports parameter configuration interfaces
 - Path alias `@/` maps to `src/` directory
 
 ### Build Configuration
+
 - Vite config includes Quasar plugin and Vue setup
 - Production builds use `/nts1-web-controller/` base path for GitHub Pages
 - TypeScript config enables strict mode with bundler module resolution

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { Quasar } from 'quasar'
 import Knob from '../Knob.vue'
@@ -78,7 +78,7 @@ describe('Knob.vue', () => {
     })
 
     // Directly test computed setter logic
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as { _value: number }
     vm._value = 64 // Set same value
 
     // Verify that emit does not occur
@@ -117,7 +117,7 @@ describe('Knob.vue', () => {
       }
     })
 
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as { _value: number }
 
     // Test getter
     expect(vm._value).toBe(64)

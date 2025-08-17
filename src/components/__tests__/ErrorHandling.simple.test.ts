@@ -11,7 +11,7 @@ const quasarConfig = {
 }
 
 describe('Basic Error Handling Tests', () => {
-  let wrapper: any
+  let wrapper: any // eslint-disable-line @typescript-eslint/no-explicit-any
 
   beforeEach(() => {
     // Mock console methods

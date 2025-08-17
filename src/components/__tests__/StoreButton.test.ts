@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { Quasar } from 'quasar'
 import StoreButton from '../StoreButton.vue'
@@ -25,7 +25,9 @@ describe('StoreButton.vue', () => {
   it('should set default values correctly', () => {
     const wrapper = mount(StoreButton, {
       ...quasarConfig,
-      props: {}
+      props: {
+        number: 1
+      }
     })
 
     expect(wrapper.props('number')).toBe(1)
@@ -69,7 +71,7 @@ describe('StoreButton.vue', () => {
     })
 
     // Test by calling save function directly
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as { save: () => void; load: () => void; label: string }
     vm.save()
 
     expect(wrapper.emitted()['save']).toBeTruthy()
@@ -111,7 +113,7 @@ describe('StoreButton.vue', () => {
       props: { number: 4 }
     })
 
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as { save: () => void; load: () => void; label: string }
     expect(vm.label).toBe('Patch-5')
   })
 
@@ -121,7 +123,7 @@ describe('StoreButton.vue', () => {
       props: { number: 6 }
     })
 
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as { save: () => void; load: () => void; label: string }
     vm.load()
 
     expect(wrapper.emitted()['load']).toBeTruthy()
@@ -134,7 +136,7 @@ describe('StoreButton.vue', () => {
       props: { number: 8 }
     })
 
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as { save: () => void; load: () => void; label: string }
     vm.save()
 
     expect(wrapper.emitted()['save']).toBeTruthy()

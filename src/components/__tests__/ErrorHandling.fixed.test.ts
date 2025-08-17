@@ -17,7 +17,7 @@ vi.spyOn(console, 'info').mockImplementation(() => {})
 vi.spyOn(console, 'warn').mockImplementation(() => {})
 
 describe('Error Handling Tests', () => {
-  let wrapper: any
+  let wrapper: any // eslint-disable-line @typescript-eslint/no-explicit-any
 
   afterEach(() => {
     if (wrapper) {

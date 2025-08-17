@@ -52,9 +52,60 @@ export interface MidiDevice {
   id: string
   name: string
   manufacturer: string
-  state: string
-  type: string
+  state: 'connected' | 'disconnected'
+  type: 'input' | 'output'
 }
+
+// MIDI Channel type
+export type MidiChannel =
+  | 'all'
+  | '1'
+  | '2'
+  | '3'
+  | '4'
+  | '5'
+  | '6'
+  | '7'
+  | '8'
+  | '9'
+  | '10'
+  | '11'
+  | '12'
+  | '13'
+  | '14'
+  | '15'
+  | '16'
+
+// MIDI operation result
+export interface MidiOperationResult {
+  success: boolean
+  error?: string
+}
+
+// Error types
+export type ErrorType =
+  | 'midi_not_supported'
+  | 'midi_permission_denied'
+  | 'midi_device_error'
+  | 'storage_error'
+  | 'validation_error'
+  | 'unknown_error'
+
+export interface AppError {
+  type: ErrorType
+  message: string
+  context?: string
+  timestamp?: Date
+}
+
+// Function types for error handling
+export type ErrorHandler = (error: AppError) => void
+export type SafeOperation<T = void> = () => T | Promise<T>
+export type SafeOperationWrapper = <T>(
+  operation: SafeOperation<T>,
+  errorContext: string,
+  errorType?: ErrorType
+) => T | void
 
 // Component Props
 export interface KnobProps {
@@ -71,6 +122,43 @@ export interface KeyboardProps {
   arpSwitch: boolean
   octave: number
 }
+
+// Type for patch sections
+export type PatchSectionKey = 'osc' | 'filter' | 'eg' | 'mod' | 'delay' | 'reverb'
+
+// Type for patch section values (excluding type which is OptionType)
+export type PatchSectionValue = number
+
+// Type for parameter keys within each section
+export type ParamKey<T extends PatchSectionKey> = T extends 'osc'
+  ? 'shape' | 'alt' | 'rate' | 'depth'
+  : T extends 'filter'
+    ? 'cutoff' | 'res' | 'rate' | 'depth'
+    : T extends 'eg'
+      ? 'attack' | 'release' | 'rate' | 'depth'
+      : T extends 'mod'
+        ? 'time' | 'depth'
+        : T extends 'delay'
+          ? 'time' | 'depth' | 'mix'
+          : T extends 'reverb'
+            ? 'time' | 'depth' | 'mix'
+            : never
+
+// Error handling types
+export interface ErrorState {
+  showErrorNotification: boolean
+  errorMessage: string
+  midiEnabled: boolean
+  midiError: string | null
+  deviceConnectionStatus: string
+}
+
+export type DeviceConnectionStatus =
+  | 'connected'
+  | 'disconnected'
+  | 'no_devices'
+  | 'device_not_selected'
+  | 'midi_unavailable'
 
 // Event emitters
 export interface KnobEmits {

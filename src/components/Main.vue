@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, watch } from 'vue'
 import { WebMidi, type Output, type Input } from 'webmidi'
-import _ from 'lodash'
 import Knob from './Knob.vue'
 import StoreButton from './StoreButton.vue'
 import Keyboard from './Keyboard.vue'
 import { params, types, midiChannelOptions } from '@/lib/params'
 import { storageAvailable } from '@/lib/utils'
-import type { PatchData } from '@/types/components'
+import type {
+  PatchData,
+  PatchSectionKey,
+  DeviceConnectionStatus,
+  MidiChannel
+} from '@/types/components'
 
 // Reactive state
 const holdSwitch = ref<boolean>(true) // Keyboard hold toggle switch
@@ -17,14 +21,14 @@ const tab = ref<string>('knobs') // Global tab
 const outputs = ref<Output[]>([]) // MIDI devices
 const outputId = ref<string | null>(null)
 const inputs = ref<Input[]>([])
-const outputMidiChannel = ref<string>('all') // Selected MIDI channel
+const outputMidiChannel = ref<MidiChannel>('all') // Selected MIDI channel
 const patches = ref<PatchData[]>([]) // 10 Patch data
 const heldNotes = ref<number[]>([]) // Currently held notes
 
 // Error handling state
 const midiEnabled = ref<boolean>(false) // WebMIDI API availability status
 const midiError = ref<string | null>(null) // Current MIDI error message
-const deviceConnectionStatus = ref<string>('disconnected') // Device connection status
+const deviceConnectionStatus = ref<DeviceConnectionStatus>('disconnected') // Device connection status
 const showErrorNotification = ref<boolean>(false) // Error notification visibility
 const errorMessage = ref<string>('') // Current error message for user
 
@@ -341,23 +345,29 @@ const handleLoadPatch = (n: number): void => {
 }
 
 const sendPatch = (): void => {
-  _.forEach(tmpPatch, (_val: any, key: string) => {
-    const parentKey = key as keyof PatchData
-    if (key !== 'arp') {
-      _.forEach(tmpPatch[parentKey], (val: any, subKey: string) => {
-        const cc = params[parentKey][subKey as keyof (typeof params)[typeof parentKey]]['cc']
-        if (subKey === 'type') {
-          handleControlChange(cc, (val as { value: number }).value)
+  // Handle non-arp sections
+  const sections: PatchSectionKey[] = ['osc', 'filter', 'eg', 'mod', 'delay', 'reverb']
+
+  sections.forEach(sectionKey => {
+    const section = tmpPatch[sectionKey]
+    const sectionParams = params[sectionKey]
+
+    Object.entries(section).forEach(([paramKey, value]) => {
+      const paramConfig = sectionParams[paramKey as keyof typeof sectionParams]
+      if (paramConfig && typeof paramConfig === 'object' && 'cc' in paramConfig) {
+        if (paramKey === 'type') {
+          handleControlChange(paramConfig.cc, (value as { value: number }).value)
         } else {
-          handleControlChange(cc, val as number)
+          handleControlChange(paramConfig.cc, value as number)
         }
-      })
-    } else {
-      handleControlChange(117, tmpPatch.arp.type.value)
-      handleControlChange(118, tmpPatch.arp.scale.value)
-      handleControlChange(119, tmpPatch.arp.length)
-    }
+      }
+    })
   })
+
+  // Handle arp section separately
+  handleControlChange(117, tmpPatch.arp.type.value)
+  handleControlChange(118, tmpPatch.arp.scale.value)
+  handleControlChange(119, tmpPatch.arp.length)
 }
 
 const handlePanic = (): void => {

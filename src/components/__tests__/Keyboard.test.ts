@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { Quasar } from 'quasar'
 import Keyboard from '../Keyboard.vue'
@@ -109,7 +109,7 @@ describe('Keyboard.vue', () => {
       props: { ...defaultProps, holdSwitch: true }
     })
 
-    const vm = wrapper.vm as any
+    const vm = wrapper.vm as unknown as { _holdSwitch: boolean }
     vm._holdSwitch = true // Set same value
 
     expect(wrapper.emitted()['update:holdSwitch']).toBeFalsy()
@@ -197,8 +197,8 @@ describe('Keyboard.vue', () => {
       await firstKey.trigger('mousedown')
 
       expect(wrapper.emitted()['noteOn']).toBeTruthy()
-      const emittedNote = wrapper.emitted()['noteOn'][0][0]
-      expect(emittedNote).toBe(testCase.expectedNote)
+      const emittedEvents = wrapper.emitted()['noteOn'] as number[][]
+      expect(emittedEvents[0][0]).toBe(testCase.expectedNote)
     }
   })
 })
