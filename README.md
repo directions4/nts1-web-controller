@@ -10,11 +10,11 @@ You can also install it on your own machine, but it also runs at the following U
 
 ## Features
 
-* Browser-controlled UI for KORG NTS-1 synthesizer
-
-* Virtual keyboard
-
-* Patches stored in Web LocalStorage
+* **Browser-controlled UI** for KORG NTS-1 synthesizer
+* **Real-time parameter control** with virtual knobs and sliders
+* **Virtual keyboard** with octave shifting and hold/arpeggiator modes
+* **Patch management** with save/load functionality stored in Web LocalStorage
+* **MIDI device monitoring** with connection status indicators
 
 ## Browser Support
 
@@ -33,21 +33,78 @@ Connect Korg NTS-1 to your PC or SmartPhone through USB port, and access this UR
 
 ## Local execution
 
-### Installation
+### Prerequisites
 
-You need [node](https://nodejs.org/).
+You need [Node.js](https://nodejs.org/) (version 16 or higher).
+
+### Installation
 
 ```sh
 npm install
 ```
 
-### Running
+### Development
 
 ```sh
 npm run dev
 ```
 
-access [http://localhost:5173/](http://localhost:5173/) .
+Access [http://localhost:5173/](http://localhost:5173/) in your browser.
+
+### Building
+
+```sh
+npm run build
+```
+
+### Testing
+
+Run unit tests:
+
+```sh
+npm run test:unit
+```
+
+Run type checking:
+
+```sh
+npm run type-check
+```
+
+Run linting:
+
+```sh
+npm run lint
+```
+
+## Development
+
+### Architecture
+
+- **Vue 3** with Composition API and `<script setup>` syntax
+- **Quasar Framework** for UI components and styling
+- **WebMIDI.js** for MIDI communication with NTS-1 hardware
+- **TypeScript** for type safety and enhanced development experience
+- **Vite** as build tool
+- **Vitest** for unit testing
+
+### Project Structure
+
+```
+src/
+├── components/           # Vue components
+│   ├── Main.vue         # Main controller interface
+│   ├── Knob.vue         # Reusable knob control
+│   ├── Keyboard.vue     # Virtual MIDI keyboard
+│   ├── StoreButton.vue  # Patch save/load buttons
+│   └── __tests__/       # Component unit tests
+├── lib/
+│   ├── params.ts        # NTS-1 MIDI parameter mappings
+│   └── utils.ts         # Utility functions
+├── types/
+│   └── components.ts    # TypeScript type definitions
+└── App.vue              # Root application component
+```
 
 ## License
 
